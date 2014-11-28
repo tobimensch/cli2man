@@ -14,6 +14,8 @@ import re
 import datetime
 import subprocess
 import tempfile
+import pprint
+
 from docopt import docopt
 
 __all__ = ['cli2man']
@@ -478,17 +480,17 @@ def parse_argv(tokens, options, options_first=False):
             parsed.append(Argument(None, tokens.move()))
     return parsed
 
+section_non_option_additional = ''
 
 def parse_defaults(doc):
+    global section_non_option_additional;
+
     defaults = []
     for s in parse_section('options:', doc):
         # FIXME corner case "bla: options: --foo"
-
         _, _, s = s.partition(':')  # get rid of "options:"
-
         split = re.split('^  (-\S+?)', '\n' + s,flags=re.MULTILINE)[1:]
         split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
-
         #for p in split:
         #    print "['"+p+"']" 
 
@@ -496,15 +498,42 @@ def parse_defaults(doc):
         mdoc_add(".Bl -tag -width Ds")
         options = [Option.parse(s) for s in split if s.startswith('-')]
         defaults += options
+        mdoc_add(".El")
+        mdoc_add(".Pp")
+        mdoc_add(section_non_option_additional)
     return defaults
 
+def my_print(toprint): #just for debugging
+    print "--------------------"
+    print toprint
+    print "____________________"
 
 def parse_section(name, source):
+    global section_non_option_additional;
+
     if not "usage" in name:
-        mdoc_add(".Sh "+name.replace(':','').upper())
+        mdoc_section_start(name.replace(':','').upper())
     pattern = re.compile('^([^\n]*' + name + '[^\n]*\n?(?:[ \t].*?(?:\n|$))*)',
                          re.IGNORECASE | re.MULTILINE)
-    return [s.strip() for s in pattern.findall(source)]
+
+    res = [s.strip() for s in pattern.findall(source)]
+
+    try:
+        line = res[0].split("\n")[-1]
+
+        info_start = source.find(line) + len(line)
+        section_non_option_additional = source[info_start:]
+        my_print( section_non_option_additional)
+        info_start = re.search("\n\n^[\w+| |\t]*:[\s]*$",section_non_option_additional,re.MULTILINE)
+        if info_start != None:
+            info_start = info_start.start()
+            section_non_option_additional = section_non_option_additional[:info_start]
+        else:
+            section_non_option_additional = ''
+    except:
+        section_non_option_additional = ''
+
+    return res
 
 
 def formal_usage(section):
@@ -531,18 +560,28 @@ class Dict(dict):
     def __repr__(self):
         return '{%s}' % ',\n '.join('%r: %r' % i for i in sorted(self.items()))
 
+mdoc_sections = {}
 def mdoc_start():
     now = datetime.datetime.now()
+
+    mdoc_section_start("MDOC INIT",False)
+
     mdoc_add(".Dd $Mdocdate: "+now.strftime("%B")+" "+now.strftime("%a")+" "+str(now.day)+" "+str(now.year)+" $")
     mdoc_add(".Dt HERE_GOES_NAME_UPPER HERE_GOES_SECTION HERE_GOES_VOLUME")
     mdoc_add(".Os UNIX")
-    mdoc_add(".Sh NAME")
+
+    mdoc_section_start("NAME")
+
     mdoc_add(".Nm HERE_GOES_NAME")
     mdoc_add(".Nd HERE_GOES_DESCRIPTION")
-    mdoc_add(".Sh SYNOPSIS")
+
+    mdoc_section_start("SYNOPSIS")
+
     mdoc_add(".Nm")
     mdoc_add("HERE_GOES_SYNOPSIS")
-    mdoc_add(".Sh DESCRIPTION")
+
+    mdoc_section_start("DESCRIPTION")
+
     mdoc_add("HERE_GOES_DESCRIPTION")
 
 def mdoc_synopsis():
@@ -551,9 +590,19 @@ def mdoc_synopsis():
 mdoc_string = ''
 mdoc_synopsis_string = ''
 mdoc_name_string = ''
-mdoc_desc_string = ''
 mdoc_section = "1"
 mdoc_volume = "URM"
+mdoc_actively_parsed_section = ''
+
+def mdoc_section_start(section, NonVirtual=True):
+    global mdoc_actively_parsed_section
+
+    mdoc_push_to_section()
+
+    mdoc_actively_parsed_section = section
+
+    if NonVirtual:
+        mdoc_add(".Sh "+section)
 
 def mdoc_set_name(mdoc_str):
     global mdoc_name_string
@@ -569,13 +618,37 @@ def mdoc_merge():
     global mdoc_name_string
     global mdoc_desc_string
     global mdoc_section
+    global mdoc_sections
     global mdoc_volume
+
+    std_sections = ["MDOC INIT","NAME","SYNOPSIS","DESCRIPTION","OPTIONS","RETURN VALUE","EXIT STATUS","ENVIRONMENT","FILES","EXAMPLES","DIAGNOSTICS","ERRORS","SEE ALSO","CONFORMING TO","HISTORY","BUGS","REPORTING BUGS","OTHER","AUTHOR","COPYRIGHT"]
+
+    mdoc_push_to_section()
+
+    for section in std_sections:
+        if section.lower() in [s.lower() for s in mdoc_sections.keys()]:
+            mdoc_string += mdoc_sections[section.upper()]
+
     mdoc_string = mdoc_string.replace('HERE_GOES_SYNOPSIS',mdoc_synopsis_string)
     mdoc_string = mdoc_string.replace('HERE_GOES_NAME_UPPER',mdoc_name_string.upper())
     mdoc_string = mdoc_string.replace('HERE_GOES_NAME',mdoc_name_string)
     mdoc_string = mdoc_string.replace('HERE_GOES_DESCRIPTION',mdoc_desc_string)
     mdoc_string = mdoc_string.replace('HERE_GOES_SECTION',mdoc_section)
     mdoc_string = mdoc_string.replace('HERE_GOES_VOLUME',mdoc_volume)
+
+
+def mdoc_push_to_section():
+    global mdoc_actively_parsed_section
+    global mdoc_sections
+    global mdoc_string
+    if not mdoc_string or not mdoc_actively_parsed_section:
+        return
+    mdoc_sections[mdoc_actively_parsed_section] = mdoc_string
+    mdoc_reset()    
+
+def mdoc_reset():
+    global mdoc_string
+    mdoc_string = ''
 
 def mdoc_add(mdoc_str):
     global mdoc_string
@@ -631,38 +704,7 @@ class Info(LeafPattern):
     def parse(class_, option_description):
         short, long, argcount, value = None, None, 0, False
         options, _, description = option_description.strip().partition('  ')
-        #options = options.replace(',', ' ').replace('=', ' ')
 
-        #for s in options.split():
-        #    if s.startswith('--'):
-        #        long = s
-        #    elif s.startswith('-'):
-        #        short = s
-        #    else:
-        #        argcount = 1
-        #if argcount:
-        #    matched = re.findall('\[default: (.*)\]', description, flags=re.I)
-        ##    value = matched[0] if matched else None
-
-        #mdoc
-        #if argcount > 0:
-        #    a = options.split()[1]
-        #if short != None:
-        #    s = ''
-        #    s += ".It Fl "+short.replace('-','')
-        #    if argcount > 0:
-        #        s += " Ar "+a
-        #    if long != None:
-        #        s += " , Fl -"+long.replace('-','')
-        #        if argcount > 0:
-        #         s += " Ar "+a
-        #    mdoc_add(s)
-        #elif long != None:
-        #    if argcount > 0:
-        #        mdoc_add(".It Fl -"+long.replace('-','')+" Ar "+a)
-        #    else:
-       #         mdoc_add(".It Fl -"+long.replace('-',''))
-        #print class_(short, long, argcount, value)
         mdoc_add(".It "+options)
         mdoc_add(' '.join(description.strip().split()))
 
@@ -687,11 +729,16 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
     """Parse `argv` based on command-line interface described in `doc`.
 
     """
+    global section_non_option_additional;
+    global mdoc_desc_string;
+    
     mdoc_start()
 
     argv = sys.argv[1:] if argv is None else argv
 
     usage_sections = parse_section('usage:', doc)
+    
+    mdoc_desc_string = section_non_option_additional.strip()
 
     if len(usage_sections) == 0:
         raise Cli2ManLanguageError('"usage:" (case-insensitive) not found.')
@@ -718,7 +765,6 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
     extras(help, version, argv, doc)
     matched, left, collected = pattern.fix().match(argv)
 
-    mdoc_merge()
 
     return mdoc_string
 
@@ -747,6 +793,7 @@ Options:
   --volume VOLUME              volume title for manual page
   -I FILE, --include FILE      include material from FILE
   -v, --version                display version information
+
 
 '''
 
@@ -813,6 +860,8 @@ if opt['--info-section']:
 if opt['--option-section']:
     for option_section in opt['--option-section'] if not isinstance(opt['--option-section'],basestring) else [opt['--option-section']]:
         mdoc_parse_option_section(out,option_section)
+
+mdoc_merge()
 
 if opt['--output']:
     f = open(opt['--output'],'w+')

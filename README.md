@@ -14,9 +14,11 @@ INSTALLING
 
 - Get Cli2Man
 - Extract
-- run
+- run:
 
+```
     python setup.py install
+```
 
 HOW TO USE IT
 -------------
@@ -26,6 +28,7 @@ Get mdoc output of any program with --help:
     cli2man program
 
 Write manpage to file:
+
     cli2man program -o manpage
 
 View temporary manpage:
