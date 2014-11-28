@@ -5,7 +5,7 @@ Cli2Man parses a program's --help option output and tries to put together a half
 
 The author simply took the docopt source and started hacking and after a couple of hours everything started to work amazingly good. This speed of development was possible, because the docopt authors already had done the hard work of writing the parser.
 
-Unfortunately the docopt parser isn't very permissive, but rather strict. For example the ArgumentParser of Python that the author was using produces slightly ""malformated"" --help pages and therefore Cli2Man has to introduce a lot of hacks to make foreign --help messages somehow work with the docopt parser.
+Unfortunately the docopt parser isn't very permissive, but rather strict. For example the ArgumentParser of Python that the author was using produces slightly _malformated_ --help pages and therefore Cli2Man has to introduce a lot of hacks to make foreign --help messages somehow work with the docopt parser.
 
 As output format the choice was the mdoc macros for manpages, because the author had seen a nice presentation on their beauty just a couple of hours earlier. MDoc is more of a semantic format that's designed for manpages, while the man format that's the default on Linux distributions is more like a typesetting format. But this shouldn't be a problem, since usually all Linux distributions (groff is doing this work on Linux) should be able to handle manpages with mdoc macros fine. And on BSDs mdoc/mandoc is now the default. And should you still have a problem with the mdoc format, well, there's a converter from mdoc to man in mandoc (and probably also in groff).
 
@@ -15,33 +15,40 @@ INSTALLING
 - Get Cli2Man
 - Extract
 - run
+
     python setup.py install
 
 HOW TO USE IT
 -------------
 
 Get mdoc output of any program with --help:
+
     cli2man program
 
 Write manpage to file:
     cli2man program -o manpage
 
 View temporary manpage:
+
     cli2man program -m
 
 View manpage just written to file:
+
     cli2man program -m -o manpage
 
 Currently cli2man doesn't try to find more than one options section on it's own (it's searching for "options" and
 "optional arguments"), so if you have a differently named option section or you have multiple option sections
 you want to do something like this:
+
     cli2man program --option-section "Advanced Options" --option-section "Next Level Options"
 
 If you have sections that are more like plain text and more about explaining things and info and that aren't
 listing options, then you want to tell cli2man differently about them:
+
     cli2man program --option-section "Advanced Options" --option-section "Next Level Options" --info-section "examples" --info-section "environment"
 
 All these sections have in common that cli2man parses for something that looks roughly like this:
+
     MySection:
       Section text
 
