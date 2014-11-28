@@ -75,9 +75,7 @@ DEVELOPMENT / BUGS:
 
 Cli2Man is in very early development stages, and is basically docopt + a lot of dirty hacking. But you can generate manpages, if the input is compatible with docopt or if you're lucky enough. The chances aren't bad. But there are glitches. So don't get your hopes too high. The good news is that Cli2Man is written in python and improving it should be possible rather fast. As said before, it was written in a couple of hours. 
 
-What's not working right now is ordering sections. The --include option is not final, right now you can import MDoc formated files, but maybe we should allow Markdown or something like that.
-
-The parser at the moment doesn't read the description from --help. Will be fixed soon, though.
+The --include option is not final, right now you can import MDoc formated files, but maybe we should allow Markdown or something like that.
 
 Many missing features, like reading Copyright info and so on, but that's really high priority stuff.
 
