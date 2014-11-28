@@ -20,29 +20,29 @@ HOW TO USE IT
 -------------
 
 Get mdoc output of any program with --help:
-cli2man program
+    cli2man program
 
 Write manpage to file:
-cli2man program -o manpage
+    cli2man program -o manpage
 
 View temporary manpage:
-cli2man program -m
+    cli2man program -m
 
 View manpage just written to file:
-cli2man program -m -o manpage
+    cli2man program -m -o manpage
 
 Currently cli2man doesn't try to find more than one options section on it's own (it's searching for "options" and
 "optional arguments"), so if you have a differently named option section or you have multiple option sections
 you want to do something like this:
-cli2man program --option-section "Advanced Options" --option-section "Next Level Options"
+    cli2man program --option-section "Advanced Options" --option-section "Next Level Options"
 
 If you have sections that are more like plain text and more about explaining things and info and that aren't
 listing options, then you want to tell cli2man differently about them:
-cli2man program --option-section "Advanced Options" --option-section "Next Level Options" --info-section "examples" --info-section "environment"
+    cli2man program --option-section "Advanced Options" --option-section "Next Level Options" --info-section "examples" --info-section "environment"
 
 All these sections have in common that cli2man parses for something that looks roughly like this:
-MySection:
-  Section text
+    MySection:
+      Section text
 
 DEVELOPMENT / BUGS:
 -------------------
