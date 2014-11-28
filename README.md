@@ -23,7 +23,7 @@ Install requirements:
    repositories, too
 
 Install Cli2Man:
-- Get Cli2Man
+- [Get Cli2Man](https://github.com/tobimensch/cli2man/archive/master.zip)
 - Extract
 - run:
 
