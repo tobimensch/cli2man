@@ -593,6 +593,8 @@ mdoc_name_string = ''
 mdoc_section = "1"
 mdoc_volume = "URM"
 mdoc_actively_parsed_section = ''
+mdoc_section_order = ["MDOC INIT","NAME","SYNOPSIS","DESCRIPTION","OPTIONS","RETURN VALUE","EXIT STATUS","ENVIRONMENT","USAGE","FILES","EXAMPLES","DIAGNOSTICS","ERRORS","SEE ALSO","CONFORMING TO","HISTORY","BUGS","REPORTING BUGS","OTHER","AUTHOR","COPYRIGHT"]
+
 
 def mdoc_section_start(section, NonVirtual=True):
     global mdoc_actively_parsed_section
@@ -620,8 +622,9 @@ def mdoc_merge():
     global mdoc_section
     global mdoc_sections
     global mdoc_volume
+    global mdoc_section_order
 
-    std_sections = ["MDOC INIT","NAME","SYNOPSIS","DESCRIPTION","OPTIONS","RETURN VALUE","EXIT STATUS","ENVIRONMENT","FILES","EXAMPLES","DIAGNOSTICS","ERRORS","SEE ALSO","CONFORMING TO","HISTORY","BUGS","REPORTING BUGS","OTHER","AUTHOR","COPYRIGHT"]
+    std_sections = mdoc_section_order
 
     mdoc_push_to_section()
 
@@ -776,7 +779,10 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
 
 
 doc ='''
-usage: cli2man ( <command> | -i FILE | --stdin ) [--option-section NAME ...] [options] [--info-section NAME ...]
+usage: cli2man ( <command> | -i FILE | --stdin ) [options]
+               [--option-section NAME ...] [--info-section NAME ...]
+               [--set-order SECTIONS]
+       cli2man --print-order [--set-order SECTIONS]
        cli2man --version
 
 Use the help message of a command to create a manpage.
@@ -792,12 +798,28 @@ Options:
   -s NUM, --section NUM        section number for manual page
   --volume VOLUME              volume title for manual page
   -I FILE, --include FILE      include material from FILE
+  --set-order SECTIONS         comma separated list of sections
+  --print-order                prints section order
+                               default order if non is set by user
   -v, --version                display version information
 
 
 '''
 
 opt = docopt(doc,None,True,__version__)
+
+
+if opt['--set-order']:
+    mdoc_section_order = ["MDOC INIT"]
+    mdoc_section_order += opt['--set-order'].split(',') #overwrites default order
+
+if opt['--print-order']:
+    print "Section Order:"
+    for section in mdoc_section_order:
+        if section == "MDOC INIT":
+            continue
+        print "  "+section
+    exit(0)
 
 out = ''
 
