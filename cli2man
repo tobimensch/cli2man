@@ -765,6 +765,7 @@ if opt['--input']:
 elif opt['--stdin']:
    out = "".join(sys.stdin.readlines())
 else:
+   os.environ['LC_ALL'] = 'en_US' #we don't intend to parse localized help messages
    p = subprocess.Popen([opt['<command>'],"-h"], stdout=subprocess.PIPE)
    out, err = p.communicate()
    if p.returncode != 0:
