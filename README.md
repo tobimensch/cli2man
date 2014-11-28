@@ -12,7 +12,7 @@ As output format the choice was the mdoc macros for manpages, because the author
 INSTALLING
 ----------
 
-Requirements:
+Install requirements:
 - python
 - docopt module
  - https://github.com/docopt/docopt
@@ -22,6 +22,7 @@ Requirements:
    so it's probably in other distributions's
    repositories, too
 
+Install Cli2Man:
 - Get Cli2Man
 - Extract
 - run:
