@@ -15,6 +15,7 @@ import datetime
 import subprocess
 import tempfile
 import pprint
+import gzip
 
 from docopt import docopt
 
@@ -781,7 +782,7 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
 doc ='''
 usage: cli2man ( <command> | -i FILE | --stdin ) [options]
                [--option-section NAME ...] [--info-section NAME ...]
-               [--set-order SECTIONS]
+               [--set-order SECTIONS] [--gzip]
        cli2man --print-order [--set-order SECTIONS]
        cli2man --version
 
@@ -789,7 +790,9 @@ Use the help message of a command to create a manpage.
 
 Options:
   -h, --help                   show this help message and exit
-  -o FILE, --output FILE       write to file instead of stdout     
+  -o FILE, --output FILE       write to file instead of stdout.
+                               when FILE is set to "auto" the    
+                               format is: command.section(.gz)
   -i FILE, --input FILE        read CLI-help input from file    
   --stdin                      read CLI-help input from stdin      
   --info-section NAME ...      parse non-option sections
@@ -798,6 +801,7 @@ Options:
   -s NUM, --section NUM        section number for manual page
   --volume VOLUME              volume title for manual page
   -I FILE, --include FILE      include material from FILE
+  --gzip                       compress file output
   --set-order SECTIONS         comma separated list of sections
   --print-order                prints section order
                                default order if non is set by user
@@ -886,7 +890,19 @@ if opt['--option-section']:
 mdoc_merge()
 
 if opt['--output']:
-    f = open(opt['--output'],'w+')
+    if opt['--output'] == 'auto':
+        if not opt['<command>']:
+            print "Usage error: when --output=auto is set you have to specify the <command>"
+            exit(1)
+        opt['--output'] = os.path.basename(opt['<command>'])+"."+mdoc_section
+
+    if opt['--gzip']:
+        opt['--output'] += ".gz"
+
+    if opt['--output'].endswith('.gz'):
+        f = gzip.open(opt['--output'],'w+')
+    else:
+        f = open(opt['--output'],'w+')
     f.write(mdoc_string)
     f.close()
 else:

@@ -70,6 +70,17 @@ Finally here's a real example where cli2man generates its own manpage and the OP
 
     cli2man cli2man -m --set-order "NAME,SYNOPSIS,OPTIONS,DESCRIPTION"
 
+Usually manpages have the format progname.section and often they're compressed with gzip.
+If you want that file format, run cli2man as follows:
+
+    cli2man cli2man -o auto --gzip 
+
+You get a file cli2man.1.gz in the current directory.
+
+Just adding .gz to the output file name will result in a gzip compressed file, too.
+
+    cli2man cli2man -o my_awesome_manpage.gz
+
 DEVELOPMENT / BUGS:
 -------------------
 
@@ -89,7 +100,7 @@ Realized with the great Docopt:
 ```
 usage: cli2man ( <command> | -i FILE | --stdin ) [options]
                [--option-section NAME ...] [--info-section NAME ...]
-               [--set-order SECTIONS]
+               [--set-order SECTIONS] [--gzip]
        cli2man --print-order [--set-order SECTIONS]
        cli2man --version
 
@@ -97,7 +108,9 @@ Use the help message of a command to create a manpage.
 
 Options:
   -h, --help                   show this help message and exit
-  -o FILE, --output FILE       write to file instead of stdout     
+  -o FILE, --output FILE       write to file instead of stdout.
+                               when FILE is set to "auto" the    
+                               format is: command.section(.gz)
   -i FILE, --input FILE        read CLI-help input from file    
   --stdin                      read CLI-help input from stdin      
   --info-section NAME ...      parse non-option sections
@@ -106,10 +119,12 @@ Options:
   -s NUM, --section NUM        section number for manual page
   --volume VOLUME              volume title for manual page
   -I FILE, --include FILE      include material from FILE
+  --gzip                       compress file output
   --set-order SECTIONS         comma separated list of sections
   --print-order                prints section order
                                default order if non is set by user
   -v, --version                display version information
+
 
 ```
 
