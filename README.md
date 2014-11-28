@@ -138,6 +138,13 @@ Text belonging to the second
 
 ```
 
+To include your new section in the manpage run cli2man like this:
+
+    cli2man myprog -o auto --gzip -m -I myprog_section_usage.mdoc
+
+If you're not happy with the order the new section appears in, try this:
+
+    cli2man myprog -o auto --gzip -m -I myprog_section_usage.mdoc --set-order "NAME,USAGE,SYNOPSIS,DESCRIPTION"
 
 For more information on mdoc, visit:
 - http://mdocml.bsd.lv/man/mdoc.7.html
