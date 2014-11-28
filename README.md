@@ -12,6 +12,16 @@ As output format the choice was the mdoc macros for manpages, because the author
 INSTALLING
 ----------
 
+Requirements:
+- python
+- docopt module
+ - https://github.com/docopt/docopt
+ - drop docopt.py into cli2man directory
+ - or simply run: pip install docopt==0.6.1
+ - docopt is in the Fedora repository,
+   so it's probably in other distributions's
+   repositories, too
+
 - Get Cli2Man
 - Extract
 - run:
