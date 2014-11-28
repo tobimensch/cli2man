@@ -212,19 +212,19 @@ class Option(LeafPattern):
             a = options.split()[1]
         if short != None:
             s = ''
-            s += ".It Fl "+short.replace('-','')
+            s += ".It Fl "+short.lstrip('-')
             if argcount > 0:
                 s += " Ar "+a
             if long != None:
-                s += " , Fl -"+long.replace('-','')
+                s += " , Fl -"+long.lstrip('-')
                 if argcount > 0:
                     s += " Ar "+a
             mdoc_add(s)
         elif long != None:
             if argcount > 0:
-                mdoc_add(".It Fl -"+long.replace('-','')+" Ar "+a)
+                mdoc_add(".It Fl -"+long.lstrip('-')+" Ar "+a)
             else:
-                mdoc_add(".It Fl -"+long.replace('-',''))
+                mdoc_add(".It Fl -"+long.lstrip('-'))
         #print class_(short, long, argcount, value)
         mdoc_add(' '.join(description.strip().split()))
 
@@ -709,10 +709,9 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
     argv = parse_argv(Tokens(argv), list(options), options_first)
     pattern_options = set(pattern.flat(Option))
 
-    for options_shortcut in pattern.flat(OptionsShortcut):
-        doc_options = parse_defaults(doc)
-        print doc_options
-        options_shortcut.children = list(set(doc_options) - pattern_options)
+    #for options_shortcut in pattern.flat(OptionsShortcut):
+     #   doc_options = parse_defaults(doc)
+      #  options_shortcut.children = list(set(doc_options) - pattern_options)
         #if any_options:
         #    options_shortcut.children += [Option(o.short, o.long, o.argcount)
         #                    for o in argv if type(o) is Option]
@@ -731,7 +730,7 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
 
 
 doc ='''
-usage: cli2man ( <command> | -i FILE | --stdin ) [options] [--option-section NAME ...] [--info-section NAME ...]
+usage: cli2man ( <command> | -i FILE | --stdin ) [--option-section NAME ...] [options] [--info-section NAME ...]
        cli2man --version
 
 Use the help message of a command to create a manpage.
@@ -751,12 +750,7 @@ Options:
 
 '''
 
-opt = docopt(doc)
-print opt
-
-if opt['--version']:
-    print __version__
-    exit(0)
+opt = docopt(doc,None,True,__version__)
 
 out = ''
 
