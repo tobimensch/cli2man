@@ -66,7 +66,7 @@ To change the order you use --set-order followed by a comma separated list of se
 
 Everything that's not defined in the order will simply appended to the end of the manpage.
 
-Finally here's a real example of cli2man generated its own manpage but where OPTIONS and DESCRIPTION are swapped:
+Finally here's a real example where cli2man generates its own manpage and the OPTIONS and DESCRIPTION sections are swapped:
 
     cli2man cli2man -m --set-order "NAME,SYNOPSIS,OPTIONS,DESCRIPTION"
 
