@@ -92,6 +92,62 @@ Just adding .gz to the output file name will result in a gzip compressed file, t
 
     cli2man cli2man -o my_awesome_manpage.gz
 
+INCLUDING EXTRA MATERIAL IN YOUR MANPAGE / MINI MDOC TUTORIAL
+-------------------------------------------------------------
+
+Writing manpages with MDoc by hand isn't really hard, that's why Cli2Man outputs MDoc.
+
+Let's say you want to include a section USAGE in your manpage, where you exactly describe
+what you can do with a program and how everything works.
+
+Create a new file myprog_section_usage.mdoc like this:
+
+```
+.Sh USAGE
+.Pp
+Writing manpages with MDoc by hand isn't really hard, that's why Cli2Man outputs MDoc.
+.Pp
+Let's say you want to include a section USAGE in your manpage, where you exactly describe
+what you can do with a program and how everything works.
+...
+```
+
+As you see the line
+
+     .Sh USAGE
+
+Creates a new section "USAGE" in the manpage.
+Lines starting with a dot and two letters (like .Sh/.Pp) are macros and they sometimes take
+parameters and sometimes not.
+
+While .Sh SECTION starts a new section, the .Pp macro simply states that a new paragraph is beginning here.
+
+If you want a list of items with nice identation, something like this will work:
+
+```
+.Sh USAGE
+.Pp
+.Bl -tag -width Ds
+.It the first item
+
+Text belonging to the first item
+.It the second item
+
+Text belonging to the second
+.El
+
+```
+
+
+For more information on mdoc, visit:
+- http://mdocml.bsd.lv/man/mdoc.7.html
+- http://www.openbsd.org/papers/eurobsdcon2014-mandoc-slides.pdf
+
+There are also tools to convert other formats to mdoc:
+- Convert Plain Old Documentation / POD format to mdoc: http://mdocml.bsd.lv/pod2mdoc/
+ - it's a simple markup language you can pick up as fast as markdown
+ - convert Markdown to POD and then convert POD to mdoc: http://search.cpan.org/~keedi/Markdown-Pod-0.003/bin/markdown2pod
+
 DEVELOPMENT / BUGS:
 -------------------
 
