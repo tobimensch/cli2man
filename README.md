@@ -87,7 +87,10 @@ CLI:
 Realized with the great Docopt:
 
 ```
-usage: cli2man ( <command> | -i FILE | --stdin ) [options] [--option-section NAME ...] [--info-section NAME ...]
+usage: cli2man ( <command> | -i FILE | --stdin ) [options]
+               [--option-section NAME ...] [--info-section NAME ...]
+               [--set-order SECTIONS]
+       cli2man --print-order [--set-order SECTIONS]
        cli2man --version
 
 Use the help message of a command to create a manpage.
@@ -103,7 +106,11 @@ Options:
   -s NUM, --section NUM        section number for manual page
   --volume VOLUME              volume title for manual page
   -I FILE, --include FILE      include material from FILE
+  --set-order SECTIONS         comma separated list of sections
+  --print-order                prints section order
+                               default order if non is set by user
   -v, --version                display version information
+
 ```
 
 LICENSE:
