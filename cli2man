@@ -524,7 +524,7 @@ def parse_section(name, source):
 
         info_start = source.find(line) + len(line)
         section_non_option_additional = source[info_start:]
-        my_print( section_non_option_additional)
+
         info_start = re.search("\n\n^[\w+| |\t]*:[\s]*$",section_non_option_additional,re.MULTILINE)
         if info_start != None:
             info_start = info_start.start()
