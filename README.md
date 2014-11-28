@@ -14,7 +14,8 @@ INSTALLING
 
 - Get Cli2Man
 - Extract
-- run python setup.py install
+- run
+    python setup.py install
 
 HOW TO USE IT
 -------------
