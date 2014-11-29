@@ -81,7 +81,7 @@ cli2man has a internal default section order of common section names. To view th
 To change the order you use --set-order followed by a comma separated list of section names. Combine it with
 --print-order to test the result:
 
-```
+``` shell
 cli2man --print-order --set-order "NAME,USAGE,OPTIONS,DESCRIPTION,EXAMPLES,COPYRIGHT"
 ```
 
@@ -89,7 +89,7 @@ Everything that's not defined in the order will simply appended to the end of th
 
 Finally here's a real example where cli2man generates its own manpage and the OPTIONS and DESCRIPTION sections are swapped:
 
-```
+``` shell
 cli2man cli2man -m --set-order "NAME,SYNOPSIS,OPTIONS,DESCRIPTION"
 ```
 
