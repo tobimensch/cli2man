@@ -7,7 +7,7 @@ The author simply took the docopt source and started hacking and after a couple 
 
 Unfortunately the docopt parser isn't very permissive, but rather strict. For example the ArgumentParser of Python that the author was using produces slightly _malformated_ --help pages and therefore Cli2Man has to introduce a lot of hacks to make foreign --help messages somehow work with the docopt parser.
 
-As output format the choice was the mdoc macros for manpages, because the author had seen a nice presentation on their beauty just a couple of hours earlier. MDoc is more of a semantic format that's designed for manpages, while the man format that's the default on Linux distributions is more like a typesetting format. But this shouldn't be a problem, since usually all Linux distributions (groff is doing this work on Linux) should be able to handle manpages with mdoc macros fine. And on BSDs mdoc/mandoc is now the default. And should you still have a problem with the mdoc format, well, there's a converter from mdoc to man in mandoc (and probably also in groff).
+As output format the choice was the mdoc macros for manpages, because the author had seen a nice presentation on their beauty just a couple of hours earlier. MDoc is more of a semantic format that's designed for manpages, while the man format that's the default on Linux distributions is more like a typesetting format. But this shouldn't be a problem, since usually all Linux distributions (groff is doing this work on Linux) should be able to handle manpages with mdoc macros fine. And on BSDs mdoc/mandoc is now the default. And should you still have a problem with the mdoc format, well, there's a superb converter from mdoc to man in [mandoc](http://mdocml.bsd.lv/).
 
 INSTALLING
 ----------
@@ -95,6 +95,9 @@ Finally here's a real example where cli2man generates its own manpage and the OP
 cli2man cli2man -m --set-order "NAME,SYNOPSIS,OPTIONS,DESCRIPTION"
 ```
 
+> NOTE: There's a standard order of sections that all manpages should stick to. Cli2Man tries to keep a standardized list of sections.
+When you change the standard order or when you use custom non-standard sections inbetween standard sections, make sure that you have good reasons to do so.
+
 ### Automatic filenames and gunzip compression
 
 Usually manpages have the format progname.section and often they're compressed with gzip.
@@ -126,26 +129,26 @@ INCLUDING EXTRA MATERIAL IN YOUR MANPAGE / MINI MDOC TUTORIAL
 
 Writing manpages with MDoc by hand isn't really hard, that's why Cli2Man outputs MDoc.
 
-Let's say you want to include a section USAGE in your manpage, where you exactly describe
+Let's say you want to include a section AUTHORS in your manpage, where you exactly describe
 what you can do with a program and how everything works.
 
 Create a new file myprog_section_usage.mdoc like this:
 
 ```
-.Sh USAGE
+.Sh AUTHORS
+Mikee Mike <mike@internet.net>
+Anika An <ani@www.org>
 .Pp
-Writing manpages with MDoc by hand isn't really hard, that's why Cli2Man outputs MDoc.
-.Pp
-Let's say you want to include a section USAGE in your manpage, where you exactly describe
-what you can do with a program and how everything works.
+Special thanks go to contributors not mentioned here:
+http://theproject.org/THANKS
 ...
 ```
 
 As you see the line
 
-     .Sh USAGE
+     .Sh AUTHORS
 
-Creates a new section "USAGE" in the manpage.
+Creates a new section "AUTHORS" in the manpage.
 Lines starting with a dot and two letters (like .Sh/.Pp) are macros and they sometimes take
 parameters and sometimes not.
 
@@ -155,13 +158,10 @@ If you want a list of items with nice identation, something like this will work:
 
 ```
 .Sh USAGE
-.Pp
 .Bl -tag -width Ds
 .It the first item
-
 Text belonging to the first item
 .It the second item
-
 Text belonging to the second
 .El
 
@@ -231,9 +231,13 @@ The good news is:
 
 Learn about mandoc:
 
-- Newest release tarball: http://mdocml.bsd.lv/snapshots/mdocml.tar.gz
-- Homepage: http://mdocml.bsd.lv/
-- User manual: http://mdocml.bsd.lv/man/mandoc.1.html
+- newest release tarball: http://mdocml.bsd.lv/snapshots/mdocml.tar.gz
+- homepage: http://mdocml.bsd.lv/
+- user manual: http://mdocml.bsd.lv/man/mandoc.1.html
+- ports of mandoc for different OSs: http://mdocml.bsd.lv/ports.html
+- [mandoc on Open Suse buildsystem](https://build.opensuse.org/package/show/home:jesseadams/mdocml) (packages for Ubuntu, Fedora and many more):
+ - there seem to be only source packages though
+ - you could take a look at .spec files and debian.rules etc. there to create real packages for distributions
 
 DEVELOPMENT / BUGS:
 -------------------
