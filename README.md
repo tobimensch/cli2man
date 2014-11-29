@@ -146,6 +146,10 @@ If you're not happy with the order the new section appears in, try this:
 
     cli2man myprog -o auto --gzip -m -I myprog_section_usage.mdoc --set-order "NAME,USAGE,SYNOPSIS,DESCRIPTION"
 
+The sections in your include file are parsed and ordered according to the section order settings. When a section
+doesn't exist in the section order it will not be included in the manpage, so if you're using any non-standard
+section names you'll have to modify the section order.
+
 For more information on mdoc, visit:
 - http://mdocml.bsd.lv/man/mdoc.7.html
 - http://www.openbsd.org/papers/eurobsdcon2014-mandoc-slides.pdf
@@ -155,6 +159,12 @@ There are also tools to convert other formats to mdoc:
  - it's a simple markup language you can pick up as fast as markdown
  - convert Markdown to POD and then convert POD to mdoc: http://search.cpan.org/~keedi/Markdown-Pod-0.003/bin/markdown2pod
 - Convert Docbook to mdoc: http://mdocml.bsd.lv/docbook2mdoc/
+
+The cli2man author started a new project to convert markdown directly to mdoc:
+- https://github.com/tobimensch/markdown2mdoc
+ - it's working but there are some markdown features that aren't supported (yet)
+  - tables aren't supported yet
+   (given mdoc's limitations all markdown features will never be supported)
 
 DEVELOPMENT / BUGS:
 -------------------
