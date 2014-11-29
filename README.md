@@ -58,12 +58,16 @@ Currently cli2man doesn't try to find more than one options section on it's own 
 "optional arguments"), so if you have a differently named option section or you have multiple option sections
 you want to do something like this:
 
-    cli2man program --option-section "Advanced Options" --option-section "Next Level Options"
+``` shell
+cli2man program --option-section "Advanced Options" --option-section "Next Level Options"
+```
 
 If you have sections that are more like plain text and more about explaining things and info and that aren't
 listing options, then you want to tell cli2man differently about them:
 
-    cli2man program --option-section "Advanced Options" --option-section "Next Level Options" --info-section "examples" --info-section "environment"
+``` shell
+cli2man program --info-section "examples" --info-section "environment" --option-section "Advanced Options" --option-section "Next Level Options"
+```
 
 All these sections have in common that cli2man parses for something that looks roughly like this:
 
@@ -107,8 +111,8 @@ later.
 There's a command line option for that:
 
 ``` shell
-    #The --create-script option saves all the other command line options in an executable script
-    cli2man cli2man -o auto --gzip -I some_additional_stuff --info-section examples --option-section "Even more options" --create-script generate_manpage.sh
+#The --create-script option saves all the other command line options in an executable script
+cli2man cli2man -o auto --gzip -I some_additional_stuff --info-section examples --option-section "Even more options" --create-script generate_manpage.sh
 ```  
 
 INCLUDING EXTRA MATERIAL IN YOUR MANPAGE / MINI MDOC TUTORIAL
