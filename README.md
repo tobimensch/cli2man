@@ -13,6 +13,7 @@ INSTALLING
 ----------
 
 Install requirements:
+
 - python
 - docopt module
  - https://github.com/docopt/docopt
@@ -23,6 +24,7 @@ Install requirements:
    repositories, too
 
 Install Cli2Man:
+
 - [Get Cli2Man](https://github.com/tobimensch/cli2man/archive/master.zip)
 - Extract
 - run:
@@ -182,10 +184,12 @@ This is a feature and not a bug, because some people may not want to include all
 file in the manpage.
 
 For more information on mdoc, visit:
+
 - http://mdocml.bsd.lv/man/mdoc.7.html
 - http://www.openbsd.org/papers/eurobsdcon2014-mandoc-slides.pdf
 
 There are also tools to convert other formats to mdoc:
+
 - Convert Plain Old Documentation / POD format to mdoc: http://mdocml.bsd.lv/pod2mdoc/
  - it's a simple markup language you can pick up as fast as markdown
  - convert Markdown to POD and then convert POD to mdoc: http://search.cpan.org/~keedi/Markdown-Pod-0.003/bin/markdown2pod
@@ -196,6 +200,40 @@ The cli2man author started a new project to convert markdown directly to mdoc:
  - it's working but there are some markdown features that aren't supported (yet)
   - tables aren't supported yet
    (given mdoc's limitations all markdown features will never be supported)
+
+CONVERTING CLI2MAN CREATED MANPAGES TO HTML AND OTHER FORMATS
+-------------------------------------------------------------
+
+There a couple of different tools for converting manpages to HTML.
+
+- there are multiple tools called man2html
+ - the author of cli2man used to use one of them, which was good, but not great
+- there's groff -Thtml
+ - the output **looks good**, you can use stylesheets to have it look like you want
+ - there were problems using the generated html on the github project page, it just didn't look right
+- and there's mandoc -Thtml
+ - it produces very clean html and you can also use stylesheets to modify the look
+ - it worked like a charm on the github project page. So far the only tool where it wasn't neccessary to make any manual modifications.
+ - **that's why mandoc is strongly recommended**
+
+On top of that:
+
+ - mandoc -Tpdf produces very good looking pdf files.
+ - mandoc -Tman converts your cli2man created mdoc macro manpages into excellent man macro manpages
+  - the conversion is so good, that there's no way that anybody can tell that there was some converting under the hood.
+  - therefore: If you should run into a system that can only use man macro manpages (i.e. Solaris), you can still use cli2man.
+
+There's just a tiny little problem for Linux users:
+***mandoc is a BSD thing and many Linux distros unfortunately don't have it in the repository***
+
+The good news is:
+**compiling it isn't difficult at all, if you're able to read a README**
+
+Learn about mandoc:
+
+- Newest release tarball: http://mdocml.bsd.lv/snapshots/mdocml.tar.gz
+- Homepage: http://mdocml.bsd.lv/
+- User manual: http://mdocml.bsd.lv/man/mandoc.1.html
 
 DEVELOPMENT / BUGS:
 -------------------
