@@ -138,7 +138,9 @@ Create a new file myprog_section_usage.mdoc like this:
 Mikee Mike <mike@internet.net>
 Anika An <ani@www.org>
 .Pp
-Special thanks go to contributors not mentioned here:
+Special thanks go to contributors not mentioned here!
+.Pp
+See the full list of contributors at:
 http://theproject.org/THANKS
 ...
 ```
