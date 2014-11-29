@@ -129,8 +129,7 @@ INCLUDING EXTRA MATERIAL IN YOUR MANPAGE / MINI MDOC TUTORIAL
 
 Writing manpages with MDoc by hand isn't really hard, that's why Cli2Man outputs MDoc.
 
-Let's say you want to include a section AUTHORS in your manpage, where you exactly describe
-what you can do with a program and how everything works.
+Let's say you want to include a section AUTHORS in your manpage.
 
 Create a new file myprog_section_usage.mdoc like this:
 
@@ -157,7 +156,7 @@ While .Sh SECTION starts a new section, the .Pp macro simply states that a new p
 If you want a list of items with nice identation, something like this will work:
 
 ```
-.Sh USAGE
+.Sh SECTION
 .Bl -tag -width Ds
 .It the first item
 Text belonging to the first item
