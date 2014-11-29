@@ -876,8 +876,17 @@ include = ''
 if opt['--include']:
     include = "".join(open(opt['--include']).readlines())
 
+def mdoc_include_parse(text):
+    for line in text.split("\n"):
+        if line.startswith(".Sh "):
+            #a section begins
+            [macro,name] = line.split(' ')
+            mdoc_section_start(name)
+            continue
+        mdoc_add(line)
+
 if include:
-    mdoc_string += include
+    mdoc_include_parse(include)
 
 if opt['--info-section']:
     for info_section in opt['--info-section'] if not isinstance(opt['--info-section'],basestring) else [opt['--info-section']]:
