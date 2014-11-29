@@ -81,13 +81,17 @@ cli2man has a internal default section order of common section names. To view th
 To change the order you use --set-order followed by a comma separated list of section names. Combine it with
 --print-order to test the result:
 
-    cli2man --print-order --set-order "NAME,USAGE,OPTIONS,DESCRIPTION,EXAMPLES,COPYRIGHT"
+```
+cli2man --print-order --set-order "NAME,USAGE,OPTIONS,DESCRIPTION,EXAMPLES,COPYRIGHT"
+```
 
 Everything that's not defined in the order will simply appended to the end of the manpage.
 
 Finally here's a real example where cli2man generates its own manpage and the OPTIONS and DESCRIPTION sections are swapped:
 
-    cli2man cli2man -m --set-order "NAME,SYNOPSIS,OPTIONS,DESCRIPTION"
+```
+cli2man cli2man -m --set-order "NAME,SYNOPSIS,OPTIONS,DESCRIPTION"
+```
 
 ### Automatic filenames and gunzip compression
 
@@ -167,7 +171,9 @@ To include your new section in the manpage run cli2man like this:
 
 If you're not happy with the order the new section appears in, try this:
 
-    cli2man myprog -o auto --gzip -m -I myprog_section_usage.mdoc --set-order "NAME,USAGE,SYNOPSIS,DESCRIPTION"
+``` shell
+cli2man myprog -o auto --gzip -m -I myprog_section_usage.mdoc --set-order "NAME,USAGE,SYNOPSIS,DESCRIPTION"
+```
 
 The sections in your include file are parsed and ordered according to the section order settings. When a section
 doesn't exist in the section order it will not be included in the manpage, so **if you're using any non-standard
