@@ -234,7 +234,7 @@ Options:
   --volume VOLUME              volume title for manual page
   --os OS                      operating system name (default: UNIX)
   -I FILE, --include FILE      include material from FILE
-  --gzip                       compress file output
+  -z, --gzip                   compress file output
   --set-order SECTIONS         comma separated list of sections
   --create-script FILE         creates manpage generation shell script
                                based on current CLI-settings
