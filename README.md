@@ -175,7 +175,7 @@ To include your new section in the manpage run cli2man like this:
 If you're not happy with the order the new section appears in, try this:
 
 ``` shell
-cli2man myprog -mzo auto -I myprog_more_info.mdoc --set-order "NAME,USAGE,SYNOPSIS,DESCRIPTION"
+cli2man myprog -mzo auto -I myprog_more_info.mdoc --set-order "NAME,AUTHORS,SYNOPSIS,DESCRIPTION"
 ```
 
 The sections in your include file are parsed and ordered according to the section order settings. When a section
@@ -183,6 +183,9 @@ doesn't exist in the section order it will not be included in the manpage, so **
 section names you'll have to modify the section order**.
 This is a feature and not a bug, because some people may not want to include all the sections from the include
 file in the manpage.
+
+> NOTE: There's a standard order of sections that all manpages should stick to. Cli2Man tries to keep a standardized list of sections.
+When you change the standard order or when you use custom non-standard sections inbetween standard sections, make sure that you have good reasons to do so.
 
 For more information on mdoc, visit:
 
