@@ -131,7 +131,7 @@ Writing manpages with MDoc by hand isn't really hard, that's why Cli2Man outputs
 
 Let's say you want to include a section AUTHORS in your manpage.
 
-Create a new file myprog_section_usage.mdoc like this:
+Create a new file myprog_more_info.mdoc like this:
 
 ```
 .Sh AUTHORS
@@ -170,12 +170,12 @@ Text belonging to the second
 
 To include your new section in the manpage run cli2man like this:
 
-    cli2man myprog -mzo auto -m -I myprog_section_usage.mdoc
+    cli2man myprog -mzo auto -m -I myprog_more_info.mdoc
 
 If you're not happy with the order the new section appears in, try this:
 
 ``` shell
-cli2man myprog -mzo auto -I myprog_section_usage.mdoc --set-order "NAME,USAGE,SYNOPSIS,DESCRIPTION"
+cli2man myprog -mzo auto -I myprog_more_info.mdoc --set-order "NAME,USAGE,SYNOPSIS,DESCRIPTION"
 ```
 
 The sections in your include file are parsed and ordered according to the section order settings. When a section
