@@ -154,6 +154,7 @@ There are also tools to convert other formats to mdoc:
 - Convert Plain Old Documentation / POD format to mdoc: http://mdocml.bsd.lv/pod2mdoc/
  - it's a simple markup language you can pick up as fast as markdown
  - convert Markdown to POD and then convert POD to mdoc: http://search.cpan.org/~keedi/Markdown-Pod-0.003/bin/markdown2pod
+- Convert Docbook to mdoc: http://mdocml.bsd.lv/docbook2mdoc/
 
 DEVELOPMENT / BUGS:
 -------------------

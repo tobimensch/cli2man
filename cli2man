@@ -567,7 +567,7 @@ def mdoc_start():
 
     mdoc_section_start("MDOC INIT",False)
 
-    mdoc_add(".Dd $Mdocdate: "+now.strftime("%B")+" "+now.strftime("%a")+" "+str(now.day)+" "+str(now.year)+" $")
+    mdoc_add(".Dd "+now.strftime("%B")+" "+now.strftime("%a")+" "+str(now.day)+" "+str(now.year))
     mdoc_add(".Dt HERE_GOES_NAME_UPPER HERE_GOES_SECTION HERE_GOES_VOLUME")
     mdoc_add(".Os UNIX")
 
