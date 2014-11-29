@@ -116,7 +116,7 @@ There's a command line option for that:
 
 ``` shell
 #The --create-script option saves all the other command line options in an executable script
-cli2man cli2man -o auto --gzip -I some_additional_stuff --info-section examples --option-section "Even more options" --create-script generate_manpage.sh
+cli2man cli2man -mzo auto -I some_additional_stuff --info-section examples --option-section "Even more options" --create-script generate_manpage.sh
 ```  
 
 INCLUDING EXTRA MATERIAL IN YOUR MANPAGE / MINI MDOC TUTORIAL
@@ -167,12 +167,12 @@ Text belonging to the second
 
 To include your new section in the manpage run cli2man like this:
 
-    cli2man myprog -o auto --gzip -m -I myprog_section_usage.mdoc
+    cli2man myprog -mzo auto -m -I myprog_section_usage.mdoc
 
 If you're not happy with the order the new section appears in, try this:
 
 ``` shell
-cli2man myprog -o auto --gzip -m -I myprog_section_usage.mdoc --set-order "NAME,USAGE,SYNOPSIS,DESCRIPTION"
+cli2man myprog -mzo auto -I myprog_section_usage.mdoc --set-order "NAME,USAGE,SYNOPSIS,DESCRIPTION"
 ```
 
 The sections in your include file are parsed and ordered according to the section order settings. When a section
