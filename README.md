@@ -178,6 +178,8 @@ cli2man myprog -mzo auto -I myprog_section_usage.mdoc --set-order "NAME,USAGE,SY
 The sections in your include file are parsed and ordered according to the section order settings. When a section
 doesn't exist in the section order it will not be included in the manpage, so **if you're using any non-standard
 section names you'll have to modify the section order**.
+This is a feature and not a bug, because some people may not want to include all the sections from the include
+file in the manpage.
 
 For more information on mdoc, visit:
 - http://mdocml.bsd.lv/man/mdoc.7.html
