@@ -224,24 +224,24 @@ Use the help message of a command to create a manpage.
 
 Options:
   -h, --help                   show this help message and exit
+  -m, --open-in-man            open the output in man
+  -z, --gzip                   compress file output
   -o FILE, --output FILE       write to file instead of stdout.
                                when FILE is set to "auto" the    
                                format is: command.section(.gz)
-  -i FILE, --input FILE        read CLI-help input from file    
-  --stdin                      read CLI-help input from stdin      
+  -i FILE, --input FILE        read CLI-help input from file
+  --stdin                      read CLI-help input from stdin     
   --info-section NAME ...      parse non-option sections
   --option-section NAME ...    parse option sections other than "Options:"
-  -m, --open-in-man            open the output in man   
+  -I FILE, --include FILE      include material from FILE
+  --print-order                prints section order
+                               default order if non is set by user
+  --set-order SECTIONS         comma separated list of sections
   -s NUM, --section NUM        section number for manual page (default: 1)
   --volume VOLUME              volume title for manual page
   --os OS                      operating system name (default: UNIX)
-  -I FILE, --include FILE      include material from FILE
-  -z, --gzip                   compress file output
-  --set-order SECTIONS         comma separated list of sections
   --create-script FILE         creates manpage generation shell script
                                based on current CLI-settings
-  --print-order                prints section order
-                               default order if non is set by user
   -v, --version                display version information
 
 ```
