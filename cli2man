@@ -910,12 +910,18 @@ def mdoc_include_parse(text):
 if include:
     mdoc_include_parse(include)
 
+def mdoc_append_section_if_not_exists(section):
+    if section.upper() not in mdoc_sections:
+        mdoc_sections.append(section.upper())
+
 if opt['--info-section']:
     for info_section in opt['--info-section'] if not isinstance(opt['--info-section'],basestring) else [opt['--info-section']]:
+        mdoc_append_section_if_not_exists(info_section)
         mdoc_parse_info_section(out,info_section)
     
 if opt['--option-section']:
     for option_section in opt['--option-section'] if not isinstance(opt['--option-section'],basestring) else [opt['--option-section']]:
+        mdoc_append_section_if_not_exists(option_section)
         mdoc_parse_option_section(out,option_section)
 
 mdoc_merge()
