@@ -98,6 +98,19 @@ Just adding .gz to the output file name will result in a gzip compressed file, t
 
     cli2man cli2man -o my_awesome_manpage.gz
 
+### Saving your current config
+
+When you have found the optimal options in the CLI, you may want to create
+a script so that you can regenerate your manpage quickly and improve your cli2man configuration
+later.
+
+There's a command line option for that:
+
+``` shell
+    #The --create-script option saves all the other command line options in an executable script
+    cli2man cli2man -o auto --gzip -I some_additional_stuff --info-section examples --option-section "Even more options" --create-script generate_manpage.sh
+```  
+
 INCLUDING EXTRA MATERIAL IN YOUR MANPAGE / MINI MDOC TUTORIAL
 -------------------------------------------------------------
 
@@ -207,15 +220,17 @@ Options:
   --info-section NAME ...      parse non-option sections
   --option-section NAME ...    parse option sections other than "Options:"
   -m, --open-in-man            open the output in man   
-  -s NUM, --section NUM        section number for manual page
+  -s NUM, --section NUM        section number for manual page (default: 1)
   --volume VOLUME              volume title for manual page
+  --os OS                      operating system name (default: UNIX)
   -I FILE, --include FILE      include material from FILE
   --gzip                       compress file output
   --set-order SECTIONS         comma separated list of sections
+  --create-script FILE         creates manpage generation shell script
+                               based on current CLI-settings
   --print-order                prints section order
                                default order if non is set by user
   -v, --version                display version information
-
 
 ```
 
