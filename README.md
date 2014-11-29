@@ -153,8 +153,8 @@ If you're not happy with the order the new section appears in, try this:
     cli2man myprog -o auto --gzip -m -I myprog_section_usage.mdoc --set-order "NAME,USAGE,SYNOPSIS,DESCRIPTION"
 
 The sections in your include file are parsed and ordered according to the section order settings. When a section
-doesn't exist in the section order it will not be included in the manpage, so if you're using any non-standard
-section names you'll have to modify the section order.
+doesn't exist in the section order it will not be included in the manpage, so **if you're using any non-standard
+section names you'll have to modify the section order**.
 
 For more information on mdoc, visit:
 - http://mdocml.bsd.lv/man/mdoc.7.html

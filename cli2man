@@ -819,10 +819,26 @@ if opt['--set-order']:
 
 if opt['--print-order']:
     print "Section Order:"
+    print "____________________"
     for section in mdoc_section_order:
         if section == "MDOC INIT":
             continue
         print "  "+section
+    print "____________________"
+    print
+    print "  --set-order \""+(','.join(mdoc_section_order[1:])+"\"")
+    print "____________________"
+    print
+    print "NOTE: You can use this string as basis for modifying the section order."
+    print
+    print "Copy it and keep the quotation marks, so that whitespace won't cause trouble."
+    print
+    print "Sections added with --info-section and --option-section are automatically appended"
+    print "to the end of the manpage, if they aren't otherwise defined in your order settings."
+    print
+    print "Sections defined in an --include mdoc file that aren't defined in the section order,"
+    print "will NOT appear in the manpage AT ALL."
+
     exit(0)
 
 out = ''
