@@ -34,6 +34,8 @@ Install Cli2Man:
 HOW TO USE IT
 -------------
 
+### The basics
+
 Get mdoc output of any program with --help:
 
     cli2man program
@@ -49,6 +51,8 @@ View temporary manpage:
 View manpage just written to file:
 
     cli2man program -m -o manpage
+
+### Handling sections
 
 Currently cli2man doesn't try to find more than one options section on it's own (it's searching for "options" and
 "optional arguments"), so if you have a differently named option section or you have multiple option sections
@@ -80,6 +84,8 @@ Everything that's not defined in the order will simply appended to the end of th
 Finally here's a real example where cli2man generates its own manpage and the OPTIONS and DESCRIPTION sections are swapped:
 
     cli2man cli2man -m --set-order "NAME,SYNOPSIS,OPTIONS,DESCRIPTION"
+
+### Automatic filenames and gunzip compression
 
 Usually manpages have the format progname.section and often they're compressed with gzip.
 If you want that file format, run cli2man as follows:
