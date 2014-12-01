@@ -276,7 +276,9 @@ usage: cli2man ( <command> | -i FILE | --stdin ) [options]
                [--set-order SECTIONS] [--gzip]
        cli2man --print-order [--set-order SECTIONS]
        cli2man --version
+
 Use the help message of a command to create a manpage.
+
 Options:
   -h, --help                   show this help message and exit
   -m, --open-in-man            open the output in man
