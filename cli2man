@@ -198,6 +198,7 @@ class Option(LeafPattern):
         short, long, argcount, value = None, None, 0, False
         options, _, description = option_description.strip().partition('  ')
         options = options.replace(',', ' ').replace('=', ' ')
+        global manual
 
         for s in options.split():
             if s.startswith('--'):
@@ -211,26 +212,7 @@ class Option(LeafPattern):
             value = matched[0] if matched else None
 
         #mdoc
-        if argcount > 0:
-            a = options.split()[1]
-        if short != None:
-            s = ''
-            s += ".It Fl "+short.lstrip('-')
-            if argcount > 0:
-                s += " Ar "+a
-            if long != None:
-                s += " , Fl -"+long.lstrip('-')
-                if argcount > 0:
-                    s += " Ar "+a
-            manual_add(s)
-        elif long != None:
-            if argcount > 0:
-                manual_add(".It Fl -"+long.lstrip('-')+" Ar "+a)
-            else:
-                manual_add(".It Fl -"+long.lstrip('-'))
-        #print class_(short, long, argcount, value)
-        manual_add(' '.join(description.strip().split()))
-
+        manual.format.add_option(options,argcount,short,long,description)
 
         return class_(short, long, argcount, value)
 
@@ -485,6 +467,7 @@ section_non_option_additional = ''
 
 def parse_defaults(doc):
     global section_non_option_additional;
+    global manual;
 
     defaults = []
     for s in parse_section('options:', doc):
@@ -496,12 +479,11 @@ def parse_defaults(doc):
         #    print "['"+p+"']" 
 
         #mdoc
-        manual_add(".Bl -tag -width Ds")
+        manual.format.begin_list()
         options = [Option.parse(s) for s in split if s.startswith('-')]
         defaults += options
-        manual_add(".El")
-        manual_add(".Pp")
-        manual_add(section_non_option_additional)
+        manual.format.end_list()
+        manual.format.text(section_non_option_additional)
     return defaults
 
 def my_print(toprint): #just for debugging
@@ -511,9 +493,10 @@ def my_print(toprint): #just for debugging
 
 def parse_section(name, source):
     global section_non_option_additional;
+    global manual
 
     if not "usage" in name:
-        manual_section_start(name.replace(':','').upper())
+        manual.section_start(name.replace(':','').upper())
     pattern = re.compile('^([^\n]*' + name + '[^\n]*\n?(?:[ \t].*?(?:\n|$))*)',
                          re.IGNORECASE | re.MULTILINE)
 
@@ -523,12 +506,12 @@ def parse_section(name, source):
         line = res[0].split("\n")[-1]
 
         info_start = source.find(line) + len(line)
-        section_non_option_additional = source[info_start:]
+        section_non_option_additional = source[info_start:].strip()
 
         info_start = re.search("\n\n^[\w+| |\t]*:[\s]*$",section_non_option_additional,re.MULTILINE)
         if info_start != None:
             info_start = info_start.start()
-            section_non_option_additional = section_non_option_additional[:info_start]
+            section_non_option_additional = section_non_option_additional[:info_start].strip()
         else:
             section_non_option_additional = ''
     except:
@@ -539,14 +522,11 @@ def parse_section(name, source):
 
 def formal_usage(section):
     _, _, section = section.partition(':')  # drop "usage:"
+    global manual
 
     pu = section.split()
-    manual_set_name(pu[0])
-    manual_synopsis()
-    global manual_synopsis_string
-
-    manual_synopsis_string = ' '.join(') | (' if s == pu[0] else s for s in pu[1:])
-    manual_synopsis_string.replace
+    manual.set_name(pu[0])
+    manual.synopsis_string = ' '.join(') | (' if s == pu[0] else s for s in pu[1:])
     return '( ' + ' '.join(') | (' if s == pu[0] else s for s in pu[1:]) + ' )'
 
 
@@ -563,142 +543,352 @@ class Dict(dict):
     def __repr__(self):
         return '{%s}' % ',\n '.join('%r: %r' % i for i in sorted(self.items()))
 
-manual_sections = {}
-def manual_start():
-    now = datetime.datetime.now()
+class ManualFormatter():
+    def __init__(self,manual):
+        self.m = manual
 
-    manual_section_start("MDOC INIT",False)
+    def begin_section(self,name):
+        print "begin section stub"
+    def begin_list(self):
+        print "begin list stub"
+    def end_list(self):
+        print "end list stub"
+    def date(self):
+        print "date stub"
+    def document(self):
+        print "document stub"
+    def os(self):
+        print "os stub"
+    def name(self):
+        print "name stub"
+    def description(self):
+        print "description stub"
+    def synopsis(self):
+        print "synopsis stub"
+    def text(self,text):
+        if text:
+            self.add_line(text.strip())
+    def paragraph(self):
+        print "paragraph stub"
 
-    manual_add(".Dd "+now.strftime("%B")+" "+str(now.day)+", "+str(now.year))
-    manual_add(".Dt HERE_GOES_NAME_UPPER HERE_GOES_SECTION HERE_GOES_VOLUME")
-    manual_add(".Os HERE_GOES_OS")
+    def add_line(self,code): #adds a linebreak at the end
+        self.m.add_line(code)
 
-    manual_section_start("NAME")
+    def add_code(self,code): #inserts code as is
+        self.m.add_code(code)
 
-    manual_add(".Nm HERE_GOES_NAME")
-    manual_add(".Nd HERE_GOES_DESCRIPTION")
+    def newline(self): #inserts newline
+        self.m.add_code("\n")
 
-    manual_section_start("SYNOPSIS")
+    def month(self):
+        return self.m.now.strftime("%B")
+    def day(self):
+        return str(self.m.now.day)
+    def year(self):
+        return str(self.m.now.year)
 
-    manual_add(".Nm")
-    manual_add("HERE_GOES_SYNOPSIS")
-
-    manual_section_start("DESCRIPTION")
-
-    manual_add("HERE_GOES_DESCRIPTION")
-
-def manual_synopsis():
-    ''
-
-manual_string = ''
-manual_synopsis_string = ''
-manual_name_string = ''
-manual_section = "1"
-manual_volume = ""
-manual_os = ""
-manual_actively_parsed_section = ''
-manual_section_order = ["MDOC INIT","NAME","SYNOPSIS","DESCRIPTION","OPTIONS","RETURN VALUES","ENVIRONMENT","USAGE","FILES","EXIT STATUS","EXAMPLES","DIAGNOSTICS","ERRORS","SEE ALSO","STANDARDS","HISTORY","AUTHORS","CAVEATS","BUGS","SECURITY CONSIDERATIONS","COPYRIGHT"]
-
-
-def manual_section_start(section, NonVirtual=True):
-    global manual_actively_parsed_section
-
-    manual_push_to_section()
-
-    manual_actively_parsed_section = section
-
-    if NonVirtual:
-        manual_add(".Sh "+section)
-
-def manual_set_name(manual_str):
-    global manual_name_string
-    manual_name_string = manual_str
-
-def manual_set_description(manual_str):
-    global manual_desc_string
-    manual_desc_string = manual_str
-
-def manual_merge():
-    global manual_string
-    global manual_synopsis_string
-    global manual_name_string
-    global manual_desc_string
-    global manual_section
-    global manual_sections
-    global manual_volume
-    global manual_section_order
-
-    std_sections = manual_section_order
-
-    manual_push_to_section()
-
-    for section in std_sections:
-        if section.lower() in [s.lower() for s in manual_sections.keys()]:
-            manual_string += manual_sections[section.upper()]
-
-    manual_string = manual_string.replace('HERE_GOES_SYNOPSIS',manual_synopsis_string)
-    manual_string = manual_string.replace('HERE_GOES_NAME_UPPER',manual_name_string.upper())
-    manual_string = manual_string.replace('HERE_GOES_NAME',manual_name_string)
-    manual_string = manual_string.replace('HERE_GOES_DESCRIPTION',manual_desc_string)
-    manual_string = manual_string.replace('HERE_GOES_SECTION',manual_section)
-    manual_string = manual_string.replace('HERE_GOES_VOLUME',manual_volume)
-    manual_string = manual_string.replace('HERE_GOES_OS',manual_os)
-
-def manual_push_to_section():
-    global manual_actively_parsed_section
-    global manual_sections
-    global manual_string
-    if not manual_string or not manual_actively_parsed_section:
+class MarkdownFormatter(ManualFormatter):
+    def begin_section(self,name):
+        self.add_line("# "+name)
+        self.newline()
+  
+    def begin_list(self):
         return
-    manual_sections[manual_actively_parsed_section] = manual_string
-    manual_reset()    
+        #self.add_line(".Bl -tag -width Ds")
 
-def manual_reset():
-    global manual_string
-    manual_string = ''
+    def end_list(self):
+        return        
+        self.add_line(".El")   
 
-def manual_add(manual_str):
-    global manual_string
-    manual_string += manual_str + "\n"
+    def date(self):
+        self.add_line("Creation Date: "+self.month()+" "+self.day()+", "+self.year())
 
-def manual_parse_option_section(doc,section):
-    defaults = []
-    for s in parse_section(section+':', doc):
-        # FIXME corner case "bla: options: --foo"
+    def document(self):
+        self.add_line("HERE_GOES_NAME_UPPER HERE_GOES_SECTION HERE_GOES_ARCH")
 
-        _, _, s = s.partition(':')  # get rid of "options:"
+    def os(self):
+        self.add_line("Operating System - HERE_GOES_OS")
 
-        split = re.split('^  (-\S+?)', '\n' + s,flags=re.MULTILINE)[1:]
-        split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
+    def name(self):
+        self.add_line("**HERE_GOES_NAME**")
 
-        #for p in split:
-        #    print "['"+p+"']" 
+    def description(self):
+        self.add_line(" -- HERE_GOES_DESCRIPTION")
 
-        #mdoc
-        manual_add(".Bl -tag -width Ds")
-        options = [Option.parse(s) for s in split if s.startswith('-')]
-        defaults += options
-    return defaults
+    def synopsis(self):
+        self.add_line("HERE_GOES_SYNOPSIS")
 
-def manual_parse_info_section(doc,section):
-    defaults = []
-    for s in parse_section(section+':', doc):
-        # FIXME corner case "bla: options: --foo"
+    def paragraph(self):
+        self.add_line("\n\n")
 
-        _, _, s = s.partition(':')  # get rid of "options:"
+    def long_flag(self,f):
+        return self.flag(f)
 
-        split = re.split('^  (-\S+?)', '\n' + s,flags=re.MULTILINE)[1:]
-        split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
+    def flag(self,f):
+        return "**"+f+"**"
 
-        #for p in split:
-        #    print "['"+p+"']" 
+    def short_flag(self,f):
+        return self.flag(f)
 
-        #mdoc
-        manual_add(".Bl -tag -width Ds")
-        #manual_add(s)
-        options = [Info.parse(s) for s in split if s.startswith('-')] #in info mode '-' is more like a bullet point
-        #defaults += options
-    return defaults
+    def argument(self,a):
+        return "*"+a+"*"
+
+    def blockquote(self,text):
+        self.newline()
+        self.add_line("> "+text)
+        self.newline()
+
+    def codeblock(self,code):
+        self.add_line("```")
+        for line in code:
+            self.add_line("    "+line)
+        self.add_line("```")
+        self.newline()
+
+    def add_option(self,options,argcount,short,long,description):
+        if argcount > 0:
+            a = options.split()[1]
+        if short != None:
+            s = ''
+            s += self.short_flag(short)
+            if argcount > 0:
+                s += " "+self.argument(a)+" "
+            if long != None:
+                s += " **,** "+self.long_flag(long)
+                if argcount > 0:
+                    s += " "+self.argument(a)+" "
+            self.add_line(s)
+        elif long != None:
+            if argcount > 0:
+                self.add_line(self.long_flag(long)+" "+self.argument(a))
+            else:
+                self.add_line(self.long_flag(long))
+        #print class_(short, long, argcount, value)
+        #self.newline()
+        self.blockquote(' '.join(description.strip().split()))
+        #self.newline()
+
+    def item(self,head,content):
+        self.add_line(" - "+head)
+        self.add_line("   "+content)
+
+class MDocFormatter(ManualFormatter):
+    def begin_section(self,name):
+        self.add_line(".Sh "+name) 
+  
+    def begin_list(self):
+        self.add_line(".Bl -tag -width Ds")
+
+    def end_list(self):
+        self.add_line(".El")   
+
+    def date(self):
+        self.add_code(".Dd "+self.month()+" "+self.day()+", "+self.year())
+
+    def document(self):
+        self.add_line(".Dt HERE_GOES_NAME_UPPER HERE_GOES_SECTIONHERE_GOES_ARCH") #avoid whitespace at end of input line warning
+
+    def os(self):
+        self.add_line(".OsHERE_GOES_OS") #avoid whitespace at end of input line warning
+
+    def name(self):
+        self.add_line(".Nm HERE_GOES_NAME")
+
+    def description(self):
+        self.add_line(".Nd HERE_GOES_DESCRIPTION")
+
+    def synopsis(self):
+        self.add_line("HERE_GOES_SYNOPSIS")
+
+    def paragraph(self):
+        self.add_line(".Pp")
+
+    def short_flag(self,f):
+        return "Fl "+f.lstrip("-")
+
+    def long_flag(self,f):
+        return "Fl -"+f.lstrip("-")
+
+    def argument(self,a):
+        return "Ar "+a
+
+    def add_option(self,options,argcount,short,long,description):
+        if argcount > 0:
+            a = options.split()[1]
+        if short != None:
+            s = ''
+            s += ".It "+self.short_flag(short)
+            if argcount > 0:
+                s += " "+self.argument(a)
+            if long != None:
+                s += " , "+self.long_flag(long)
+                if argcount > 0:
+                    s += " "+self.argument(a)
+            self.add_line(s)
+        elif long != None:
+            if argcount > 0:
+                self.add_line(".It "+self.long_flag(long)+" "+self.argument(a))
+            else:
+                self.add_line(".It "+self.long_flag(long))
+        #print class_(short, long, argcount, value)
+        self.add_line(' '.join(description.strip().split()))
+
+    def item(self,head,content):
+        self.add_line(".It "+head.strip())
+        self.add_line(".sp 2")
+        self.add_line(content.strip())
+        self.add_line(".sp 1")
+
+class Manual():
+    def __init__(self,frmt):
+        self.string = ''
+        self.synopsis_string = ''
+        self.name_string = ''
+        self.section = "1"
+        self.arch = ""
+        self.os = ""
+        self.actively_parsed_section = ''
+        self.section_order = ["MDOC INIT","NAME","SYNOPSIS","DESCRIPTION","OPTIONS","RETURN VALUES","ENVIRONMENT","USAGE","FILES","EXIT STATUS","EXAMPLES","DIAGNOSTICS","ERRORS","SEE ALSO","STANDARDS","HISTORY","AUTHORS","CAVEATS","BUGS","SECURITY CONSIDERATIONS","COPYRIGHT"]
+        self.sections = {}
+        self.set_formatter(frmt)
+        self.now = datetime.datetime.now()
+
+    def set_formatter(self,frmt):
+        if not frmt or frmt == "mdoc":
+            self.format = MDocFormatter(self)
+        elif frmt == "markdown":
+            self.format = MarkdownFormatter(self)
+        else:
+            self.format = ManualFormatter(self)
+
+    def begin(self):
+        self.section_start("MDOC INIT",False)
+
+        self.format.date()
+        self.format.document()
+        self.format.os()
+
+        self.section_start("NAME")
+
+        self.format.name()
+        self.format.description()
+
+        self.section_start("SYNOPSIS")
+
+        self.format.name()
+        self.format.synopsis()
+
+        self.section_start("DESCRIPTION")
+
+        self.format.text("HERE_GOES_DESCRIPTION")
+
+    def section_start(self,section, NonVirtual=True):
+        self.push_to_section()
+
+        self.actively_parsed_section = section
+
+        if NonVirtual:
+            self.format.begin_section(section)
+
+    def set_name(self,manual_str):
+        self.name_string = manual_str
+
+    def set_description(self,manual_str):
+        self.desc_string = manual_str
+
+    def merge(self):
+        std_sections = self.section_order
+
+        self.push_to_section()
+
+        for section in std_sections:
+            if section.lower() in [s.lower() for s in self.sections.keys()]:
+                self.string += self.sections[section.upper()]
+
+        self.string = self.string.replace('HERE_GOES_SYNOPSIS',self.synopsis_string)
+        self.string = self.string.replace('HERE_GOES_NAME_UPPER',self.name_string.upper())
+        self.string = self.string.replace('HERE_GOES_NAME',self.name_string)
+        self.string = self.string.replace('HERE_GOES_DESCRIPTION',self.desc_string)
+        self.string = self.string.replace('HERE_GOES_SECTION',self.section)
+        if self.arch:
+            self.string = self.string.replace('HERE_GOES_ARCH'," "+self.arch)
+        else:
+            self.string = self.string.replace('HERE_GOES_ARCH','')
+        if self.os:
+            self.string = self.string.replace('HERE_GOES_OS'," "+self.os)
+        else:
+            self.string = self.string.replace('HERE_GOES_OS','')
+
+    def push_to_section(self):
+        if not self.string or not self.actively_parsed_section:
+            return
+        self.sections[self.actively_parsed_section] = self.string
+        self.reset()
+
+    def reset(self):
+        self.string = ''
+
+    def add_code(self,manual_str):
+        self.string += manual_str
+
+    def add_line(self,manual_str):
+        self.string += "\n" + manual_str
+
+    def parse_option_section(self,doc,section):
+        defaults = []
+        for s in parse_section(section+':', doc):
+            # FIXME corner case "bla: options: --foo"
+
+            _, _, s = s.partition(':')  # get rid of "options:"
+
+            split = re.split('^  (-\S+?)', '\n' + s,flags=re.MULTILINE)[1:]
+            split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
+
+            #for p in split:
+            #    print "['"+p+"']" 
+
+            #mdoc
+            self.format.begin_list()
+            options = [Option.parse(s) for s in split if s.startswith('-')]
+            defaults += options
+            self.format.end_list()
+        return defaults
+
+    def parse_info_section(self,doc,section):
+        defaults = []
+        for s in parse_section(section+':', doc):
+            # FIXME corner case "bla: options: --foo"
+
+            _, _, s = s.partition(':')  # get rid of "options:"
+
+            split = re.split('^  (-\S+?)', '\n' + s,flags=re.MULTILINE)[1:]
+            split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
+
+            #for p in split:
+            #    print "['"+p+"']" 
+
+            #mdoc
+            self.format.begin_list()
+            #manual_add(s)
+            options = [Info.parse(s) for s in split if s.startswith('-')] #in info mode '-' is more like a bullet point
+            #defaults += options
+            self.format.end_list()
+        return defaults
+
+    def include_parse(self,text):
+        for line in text.split("\n"):
+            if line == '': #mdoc doesn't support having empty lines
+                continue
+            if line.startswith(".Sh "):
+                #a section begins
+                [macro,name] = line.split(' ')
+                self.section_start(name)
+                continue
+            self.add_line(line)
+
+    def append_section_if_not_exists(self,section):
+        if section.upper() not in self.sections:
+            self.sections[section.upper()] = ''
 
 class Info(LeafPattern):
 
@@ -709,14 +899,14 @@ class Info(LeafPattern):
 
     @classmethod
     def parse(class_, option_description):
+        global manual
+
         short, long, argcount, value = None, None, 0, False
         options, _, description = option_description.strip().partition('  ')
 
         options = options.replace('"','\(dq')
 
-        manual_add(".It "+options)
-        manual_add(' '.join(description.strip().split()))
-
+        manual.format.item(options,(' '.join(description.strip().split())))
 
         return class_(short, long, argcount, value)
 
@@ -739,15 +929,15 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
 
     """
     global section_non_option_additional;
-    global manual_desc_string;
+    global manual;
     
-    manual_start()
+    manual.begin()
 
     argv = sys.argv[1:] if argv is None else argv
 
     usage_sections = parse_section('usage:', doc)
     
-    manual_desc_string = section_non_option_additional.strip()
+    manual.set_description(section_non_option_additional.strip())
 
     if len(usage_sections) == 0:
         raise Cli2ManLanguageError('"usage:" (case-insensitive) not found.')
@@ -774,13 +964,12 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
     extras(help, version, argv, doc)
     matched, left, collected = pattern.fix().match(argv)
 
+    return
 
-    return manual_string
+    #if matched and left == []:  # better error message if left?
+    #    return Dict((a.name, a.value) for a in (pattern.flat() + collected))
 
-    if matched and left == []:  # better error message if left?
-        return Dict((a.name, a.value) for a in (pattern.flat() + collected))
-
-    raise Cli2ManExit()
+    #raise Cli2ManExit()
 
 
 
@@ -809,7 +998,7 @@ Options:
                                default order if non is set by user
   --set-order SECTIONS         comma separated list of sections
   -s NUM, --section NUM        section number for manual page (default: 1)
-  --volume VOLUME              volume title for manual page
+  --arch ARCH                  set architecture for manual page
   --os OS                      operating system name
   -T FORMAT                    set output format (default: mdoc)
                                -Tmarkdown EXPERIMENTAL
@@ -866,13 +1055,12 @@ else:
         p = subprocess.Popen([opt['<command>'],"--help"], stdout=subprocess.PIPE)
         out, err = p.communicate()
 
-
 if opt['--section']:
-    manual_section = opt['--section']
-if opt['--volume']:
-    manual_volume = opt['--volume']
+    manual.section = opt['--section']
+if opt['--arch']:
+    manual.arch = opt['--arch']
 if opt['--os']:
-    manual_volume = opt['--os']
+    manual.os = opt['--os']
 
 #prepare the input for docopt's parser, it expects strict conventions and i.e. python's ArgumentParser doesn't produce perfect --help pages
 
@@ -898,6 +1086,8 @@ out = out.replace('optional arguments:','Options:')
 
 empty_argv = []
 
+manual = Manual(opt['-T'])
+
 #here we do the real work
 cli2man(out,empty_argv)
 
@@ -905,33 +1095,23 @@ include = ''
 if opt['--include']:
     include = "".join(open(opt['--include']).readlines())
 
-def manual_include_parse(text):
-    for line in text.split("\n"):
-        if line.startswith(".Sh "):
-            #a section begins
-            [macro,name] = line.split(' ')
-            manual_section_start(name)
-            continue
-        manual_add(line)
+
 
 if include:
-    manual_include_parse(include)
+    manual.include_parse(include)
 
-def manual_append_section_if_not_exists(section):
-    if section.upper() not in manual_sections:
-        manual_sections[section.upper()] = ''
 
 if opt['--info-section']:
     for info_section in opt['--info-section'] if not isinstance(opt['--info-section'],basestring) else [opt['--info-section']]:
-        manual_append_section_if_not_exists(info_section)
-        manual_parse_info_section(out,info_section)
+        manual.append_section_if_not_exists(info_section)
+        manual.parse_info_section(out,info_section)
     
 if opt['--option-section']:
     for option_section in opt['--option-section'] if not isinstance(opt['--option-section'],basestring) else [opt['--option-section']]:
-        manual_append_section_if_not_exists(option_section)
-        manual_parse_option_section(out,option_section)
+        manual.append_section_if_not_exists(option_section)
+        manual.parse_option_section(out,option_section)
 
-manual_merge()
+manual.merge()
 
 if opt['--output']:
     if opt['--output'] == 'auto':
@@ -947,10 +1127,10 @@ if opt['--output']:
         f = gzip.open(opt['--output'],'w+')
     else:
         f = open(opt['--output'],'w+')
-    f.write(manual_string)
+    f.write(manual.string)
     f.close()
 else:
-    print manual_string
+    print manual.string
 
 if opt['--create-script']:
     args = sys.argv[1:]
@@ -969,7 +1149,7 @@ if opt['--create-script']:
 if opt['--open-in-man']:
     if not opt['--output']:
         f = tempfile.NamedTemporaryFile(delete=False)
-        f.write(manual_string)
+        f.write(manual.string)
         f.close()
         subprocess.call('man '+f.name,shell=True)
         os.unlink(f.name)
