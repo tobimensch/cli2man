@@ -52,7 +52,7 @@ View temporary manpage:
 
 View manpage just written to file:
 
-    cli2man program -m -o manpage
+    cli2man program -mo manpage
 
 Cli2Man now includes an experimental markdown formatter:
 
@@ -173,7 +173,7 @@ Text belonging to the second
 
 To include your new section in the manpage run cli2man like this:
 
-    cli2man myprog -mzo auto -m -I myprog_more_info.mdoc
+    cli2man myprog -mzo auto -I myprog_more_info.mdoc
 
 If you're not happy with the order the new section appears in, try this:
 
