@@ -613,7 +613,7 @@ class MarkdownFormatter(ManualFormatter):
         self.add_line("**HERE_GOES_NAME**")
 
     def description(self):
-        self.add_line(" -- HERE_GOES_DESCRIPTION")
+        self.add_line(" -- HERE_GOES_SHORT_DESCRIPTION")
 
     def synopsis(self):
         self.add_line("HERE_GOES_SYNOPSIS")
@@ -695,7 +695,7 @@ class MDocFormatter(ManualFormatter):
         self.add_line(".Nm HERE_GOES_NAME")
 
     def description(self):
-        self.add_line(".Nd HERE_GOES_DESCRIPTION")
+        self.add_line(".Nd HERE_GOES_SHORT_DESCRIPTION")
 
     def synopsis(self):
         self.add_line("HERE_GOES_SYNOPSIS")
@@ -805,9 +805,15 @@ class Manual():
             if section.lower() in [s.lower() for s in self.sections.keys()]:
                 self.string += self.sections[section.upper()]
 
+        short_description = self.desc_string.strip()
+        short_description = short_description.lower()
+        if short_description.endswith('.'):
+            short_description = short_description[:-1]
+
         self.string = self.string.replace('HERE_GOES_SYNOPSIS',self.synopsis_string)
         self.string = self.string.replace('HERE_GOES_NAME_UPPER',self.name_string.upper())
         self.string = self.string.replace('HERE_GOES_NAME',self.name_string)
+        self.string = self.string.replace('HERE_GOES_SHORT_DESCRIPTION',short_description)
         self.string = self.string.replace('HERE_GOES_DESCRIPTION',self.desc_string)
         self.string = self.string.replace('HERE_GOES_SECTION',self.section)
         if self.arch:
@@ -890,6 +896,9 @@ class Manual():
         if section.upper() not in self.sections:
             self.sections[section.upper()] = ''
 
+    def set_pattern(self,pattern):
+        self.pattern = pattern
+
 class Info(LeafPattern):
 
     def __init__(self, short=None, long=None, argcount=0, value=False):
@@ -964,7 +973,7 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
     extras(help, version, argv, doc)
     matched, left, collected = pattern.fix().match(argv)
 
-    return
+    return pattern
 
     #if matched and left == []:  # better error message if left?
     #    return Dict((a.name, a.value) for a in (pattern.flat() + collected))
@@ -1014,19 +1023,19 @@ opt = docopt(doc,None,True,__version__)
 
 
 if opt['--set-order']:
-    manual_section_order = ["MDOC INIT"]
-    manual_section_order += opt['--set-order'].split(',') #overwrites default order
+    manual.section_order = ["MDOC INIT"]
+    manual.section_order += opt['--set-order'].split(',') #overwrites default order
 
 if opt['--print-order']:
     print "Section Order:"
     print "____________________"
-    for section in manual_section_order:
+    for section in manual.section_order:
         if section == "MDOC INIT":
             continue
         print "  "+section
     print "____________________"
     print
-    print "  --set-order \""+(','.join(manual_section_order[1:])+"\"")
+    print "  --set-order \""+(','.join(manual.section_order[1:])+"\"")
     print "____________________"
     print
     print "NOTE: You can use this string as basis for modifying the section order."
@@ -1088,8 +1097,8 @@ empty_argv = []
 
 manual = Manual(opt['-T'])
 
-#here we do the real work
-cli2man(out,empty_argv)
+#here we do most of the real work
+manual.set_pattern(cli2man(out,empty_argv))
 
 include = ''
 if opt['--include']:
@@ -1118,7 +1127,7 @@ if opt['--output']:
         if not opt['<command>']:
             print "Usage error: when --output=auto is set you have to specify the <command>"
             exit(1)
-        opt['--output'] = os.path.basename(opt['<command>'])+"."+manual_section
+        opt['--output'] = os.path.basename(opt['<command>'])+"."+manual.section
 
     if opt['--gzip']:
         opt['--output'] += ".gz"
