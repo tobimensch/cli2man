@@ -54,6 +54,10 @@ View manpage just written to file:
 
     cli2man program -m -o manpage
 
+Cli2Man now includes an experimental markdown formatter:
+
+    cli2man program -Tmarkdown -o manpage.md
+
 ### Handling sections
 
 Currently cli2man doesn't try to find more than one options section on it's own (it's searching for "options" and
@@ -243,6 +247,13 @@ Learn about mandoc:
  - there seem to be only source packages though
  - you could take a look at .spec files and debian.rules etc. there to create real packages for distributions
 
+cli2man now also includes an experimental markdown formatter, that you can use like this:
+
+   cli2man prog -Tmarkdown -o markdown.md
+
+Markdown doesn't really seem to be the best choice for a manpage, but it's very common on the internet and there are lots of
+converters for it, so you could also try to convert from markdown to HTML or even Latex and many more formats.
+
 DEVELOPMENT / BUGS:
 -------------------
 
@@ -265,9 +276,7 @@ usage: cli2man ( <command> | -i FILE | --stdin ) [options]
                [--set-order SECTIONS] [--gzip]
        cli2man --print-order [--set-order SECTIONS]
        cli2man --version
-
 Use the help message of a command to create a manpage.
-
 Options:
   -h, --help                   show this help message and exit
   -m, --open-in-man            open the output in man
@@ -284,12 +293,14 @@ Options:
                                default order if non is set by user
   --set-order SECTIONS         comma separated list of sections
   -s NUM, --section NUM        section number for manual page (default: 1)
-  --volume VOLUME              volume title for manual page
-  --os OS                      operating system name (default: UNIX)
+  --arch ARCH                  set architecture for manual page
+  --os OS                      operating system name
+  -T FORMAT                    set output format (default: mdoc)
+                               -Tmarkdown EXPERIMENTAL
+                               -Tmdoc
   --create-script FILE         creates manpage generation shell script
                                based on current CLI-settings
   -v, --version                display version information
-
 ```
 
 LICENSE:
