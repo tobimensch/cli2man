@@ -247,9 +247,9 @@ Learn about mandoc:
  - there seem to be only source packages though
  - you could take a look at .spec files and debian.rules etc. there to create real packages for distributions
 
-cli2man now also includes an experimental markdown formatter, that you can use like this:
+cli2man now also has an experimental markdown formatter, that you can use like this:
 
-   cli2man prog -Tmarkdown -o markdown.md
+    cli2man prog -Tmarkdown -o markdown.md
 
 Markdown doesn't really seem to be the best choice for a manpage, but it's very common on the internet and there are lots of
 converters for it, so you could also try to convert from markdown to HTML or even Latex and many more formats.
