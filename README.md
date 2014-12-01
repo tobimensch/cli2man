@@ -169,7 +169,6 @@ Text belonging to the first item
 .It the second item
 Text belonging to the second
 .El
-
 ```
 
 To include your new section in the manpage run cli2man like this:
