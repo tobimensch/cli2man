@@ -309,6 +309,9 @@ Options:
   -s NUM, --section NUM        section number for manual page (default: 1)
   --arch ARCH                  set architecture for manual page
   --os OS                      operating system name
+  --see-also PAGES             comma separated list of manpages
+                               i.e. --see-also mandoc,mdoc7
+                               without number at the end, section 1 is assumed
   -T FORMAT                    set output format (default: mdoc)
                                -Tmarkdown EXPERIMENTAL
                                -Tmdoc
