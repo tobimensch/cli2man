@@ -697,6 +697,20 @@ class MDocFormatter(ManualFormatter):
     def description(self):
         self.add_line(".Nd HERE_GOES_SHORT_DESCRIPTION")
 
+    def manpage(self,page,number="1"):
+        if number == '':
+            number = "1"
+        self.add_line(".Xr "+page+" "+number)
+
+    def see_also(self,pages):
+        self.begin_section("SEE ALSO")
+        i = 0
+        for page in pages:
+            if i>0:
+                self.add_code(" , ")
+            self.manpage(page,pages[page])
+            i+=1
+
     def synopsis(self):
         self.add_line("HERE_GOES_SYNOPSIS")
 
@@ -1009,6 +1023,9 @@ Options:
   -s NUM, --section NUM        section number for manual page (default: 1)
   --arch ARCH                  set architecture for manual page
   --os OS                      operating system name
+  --see-also PAGES             comma separated list of manpages
+                               i.e. --see-also mandoc,mdoc7
+                               without number at the end, section 1 is assumed
   -T FORMAT                    set output format (default: mdoc)
                                -Tmarkdown EXPERIMENTAL
                                -Tmdoc
@@ -1119,6 +1136,15 @@ if opt['--option-section']:
     for option_section in opt['--option-section'] if not isinstance(opt['--option-section'],basestring) else [opt['--option-section']]:
         manual.append_section_if_not_exists(option_section)
         manual.parse_option_section(out,option_section)
+
+if opt['--see-also']:
+    pages = {}
+    for page in opt['--see-also'].split(','):
+        num = re.sub("\D", "", page)
+        page = re.sub("[0-9]", "", page)
+        pages[page] = num
+    manual.format.see_also(pages)
+            
 
 manual.merge()
 
