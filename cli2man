@@ -746,8 +746,6 @@ class MDocFormatter(ManualFormatter):
         #find arguments,flags,command name
         i=0
         for arg in self.arguments():
-            print arg
-            print i
             s=re.sub(arg.replace('[','').replace(']','')+"[ ]{0,1}","\n.Ar "+arg+"\n",s)
             i+=1
         for opt in self.options():
