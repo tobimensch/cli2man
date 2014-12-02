@@ -246,6 +246,19 @@ Learn about mandoc:
  - there seem to be only source packages though
  - you could take a look at .spec files and debian.rules etc. there to create real packages for distributions
 
+RPM/DEB/TGZ x86_64 packages created with checkinstall and alien:
+- as a temporary solution the author of checkinstall created mandoc packages
+- mandoc is statically linked in all of them
+- installs to /usr/local
+- should work with most x86_64 Linux installations, in theory...
+ - [RPM](https://github.com/tobimensch/cli2man/blob/master/mandoc_packages/mdocml-1.13.1-1.x86_64.rpm)
+  - only tested on Fedora20/21
+ - [DEB](https://github.com/tobimensch/cli2man/blob/master/mandoc_packages/mdocml_1.13.1-1_amd64.deb)
+  - untested
+ - [TGZ](https://github.com/tobimensch/cli2man/blob/master/mandoc_packages/mdocml-1.13.1.x86_64.tgz)
+  - a slackware package, but can also be simply extracted
+- packages will probably not be kept uptodate. Created on December 2, 2014.
+
 cli2man now also has an experimental markdown formatter, that you can use like this:
 
     cli2man prog -Tmarkdown -o markdown.md
