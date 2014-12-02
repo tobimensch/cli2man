@@ -527,6 +527,7 @@ def formal_usage(section):
     pu = section.split()
     manual.set_name(pu[0])
     manual.synopsis_string = ' '.join(') | (' if s == pu[0] else s for s in pu[1:])
+    command = pu[0]
     return '( ' + ' '.join(') | (' if s == pu[0] else s for s in pu[1:]) + ' )'
 
 
@@ -586,6 +587,12 @@ class ManualFormatter():
         return str(self.m.now.day)
     def year(self):
         return str(self.m.now.year)
+    def command_name(self):
+        return self.m.name_string
+    def arguments(self):
+        return self.m.arguments
+    def options(self):
+        return self.m.options
 
 class MarkdownFormatter(ManualFormatter):
     def begin_section(self,name):
@@ -697,6 +704,13 @@ class MDocFormatter(ManualFormatter):
     def description(self):
         self.add_line(".Nd HERE_GOES_SHORT_DESCRIPTION")
 
+    def remove_empty_lines(self,string):
+        l = []
+        for line in string.split("\n"):
+            if not re.match(r'^\s*$', line) and len(line)>0:
+                l.append(line.rstrip())
+        return '\n'.join(l)
+
     def manpage(self,page,number="1"):
         if number == '':
             number = "1"
@@ -726,9 +740,40 @@ class MDocFormatter(ManualFormatter):
     def argument(self,a):
         return "Ar "+a
 
+    def text(self,s):
+        if not s:
+            return
+        #find arguments,flags,command name
+        i=0
+        for arg in self.arguments():
+            print arg
+            print i
+            s=re.sub(arg.replace('[','').replace(']','')+"[ ]{0,1}","\n.Ar "+arg+"\n",s)
+            i+=1
+        for opt in self.options():
+            if opt:
+                s2=s
+                s=re.sub(opt+"[ |\n]","\n.Fl "+opt[1:].strip()+"\n",s)
+                if s2 == s: #FIXME: this is bad regex... should use a capture group and match for / and , and . and probably more
+                    s=re.sub(opt+"/","\n.Fl "+opt[1:].strip()+"\n/",s)           
+        if self.command_name():
+            s=re.sub(self.command_name()+"[ ]{0,1}","\n.Cm "+self.command_name()+"\n",s)
+
+        l2=[]
+        for l in s.split('\n'):
+            if l.startswith("'"):
+                l=l[1:]
+                l="\&'"+l
+            l2.append(l)
+        s='\n'.join(l2)
+        s=self.remove_empty_lines(s)
+
+        self.add_line(s.strip())
+
     def add_option(self,options,argcount,short,long,description):
         if argcount > 0:
             a = options.split()[1]
+            self.m.arguments[a]=''
         if short != None:
             s = ''
             s += ".It "+self.short_flag(short)
@@ -745,7 +790,10 @@ class MDocFormatter(ManualFormatter):
             else:
                 self.add_line(".It "+self.long_flag(long))
         #print class_(short, long, argcount, value)
-        self.add_line(' '.join(description.strip().split()))
+
+        self.m.options[short]=''
+        self.m.options[long]=''
+        self.text(' '.join(description.strip().split()))
 
     def item(self,head,content):
         self.add_line(".It "+head.strip())
@@ -764,8 +812,11 @@ class Manual():
         self.actively_parsed_section = ''
         self.section_order = ["MDOC INIT","NAME","SYNOPSIS","DESCRIPTION","OPTIONS","RETURN VALUES","ENVIRONMENT","USAGE","FILES","EXIT STATUS","EXAMPLES","DIAGNOSTICS","ERRORS","SEE ALSO","STANDARDS","HISTORY","AUTHORS","CAVEATS","BUGS","SECURITY CONSIDERATIONS","COPYRIGHT"]
         self.sections = {}
+        self.subsections = {}
         self.set_formatter(frmt)
         self.now = datetime.datetime.now()
+        self.options = {}
+        self.arguments = {}
 
     def set_formatter(self,frmt):
         if not frmt or frmt == "mdoc":
@@ -818,12 +869,16 @@ class Manual():
         for section in std_sections:
             if section.lower() in [s.lower() for s in self.sections.keys()]:
                 self.string += self.sections[section.upper()]
+                if section.upper() in self.subsections: #does the section have at least one subsection?
+                    for subsection in self.subsections[section.upper()]:
+                        self.string += subsections
 
         short_description = self.desc_string.strip()
         short_description = short_description.lower()
         if short_description.endswith('.'):
             short_description = short_description[:-1]
 
+        #self.synopsis_string = self.format.make_synopsis(self.pattern,self.synopsis_string);
         self.string = self.string.replace('HERE_GOES_SYNOPSIS',self.synopsis_string)
         self.string = self.string.replace('HERE_GOES_NAME_UPPER',self.name_string.upper())
         self.string = self.string.replace('HERE_GOES_NAME',self.name_string)
@@ -895,16 +950,35 @@ class Manual():
             self.format.end_list()
         return defaults
 
+    #def sub_section_of(self,subsection)
+    #    for section in self.subsections:
+    #        for ss in section:
+    #            if ss == subsection:
+    #                return section
+    #    return ""
+
     def include_parse(self,text):
+        name = ''
         for line in text.split("\n"):
             if line == '': #mdoc doesn't support having empty lines
                 continue
-            if line.startswith(".Sh "):
+            if line.startswith(".Sh "): #Section
                 #a section begins
                 [macro,name] = line.split(' ')
                 self.section_start(name)
                 continue
-            self.add_line(line)
+            #I started this code, then noticed it's most likely never needed            
+            #if line.startswith(".Ss "): #Section
+            #    #a section begins
+            #    [macro,subname] = line.split(' ')
+            #    
+            #    if name: #we previously parsed a section, of which this is logically the subsection
+            #        self.sub_section_start(subname,name)
+            #    elif self.sub_section_of(
+            #        self.
+            #        
+            #    continue
+            self.format.text(line)
 
     def append_section_if_not_exists(self,section):
         if section.upper() not in self.sections:
@@ -912,6 +986,9 @@ class Manual():
 
     def set_pattern(self,pattern):
         self.pattern = pattern
+
+    def set_options_list(self,options):
+        self.options = options
 
 class Info(LeafPattern):
 
@@ -987,10 +1064,20 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
     extras(help, version, argv, doc)
     matched, left, collected = pattern.fix().match(argv)
 
+    #USELESS... works.. but too late... we need that list much sooner
+    l={}
+    for a in (pattern.flat() + collected):
+        if type(a) is Option:
+            l[a.name]=''
+            l[a.short]=''
+
+    manual.set_options_list(l)
+
     return pattern
 
     #if matched and left == []:  # better error message if left?
     #    return Dict((a.name, a.value) for a in (pattern.flat() + collected))
+
 
     #raise Cli2ManExit()
 
