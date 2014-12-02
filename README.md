@@ -247,7 +247,7 @@ Learn about mandoc:
  - you could take a look at .spec files and debian.rules etc. there to create real packages for distributions
 
 RPM/DEB/TGZ x86_64 packages created with checkinstall and alien:
-- as a temporary solution the author of checkinstall created mandoc packages
+- as a temporary solution the author of cli2man created mandoc packages
 - mandoc is statically linked in all of them
 - installs to /usr/local
 - should work with most x86_64 Linux installations, in theory...
