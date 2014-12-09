@@ -384,8 +384,10 @@ def parse_shorts(tokens, options):
 def parse_pattern(source, options):
     tokens = Tokens.from_pattern(source)
     result = parse_expr(tokens, options)
+
     if tokens.current() is not None:
         raise tokens.error('unexpected ending: %r' % ' '.join(tokens))
+
     return Required(*result)
 
 
@@ -519,15 +521,14 @@ def parse_section(name, source):
 
     return res
 
-
 def formal_usage(section):
     _, _, section = section.partition(':')  # drop "usage:"
     global manual
-
     pu = section.split()
-    manual.set_name(pu[0])
-    manual.synopsis_string = ' '.join(') | (' if s == pu[0] else s for s in pu[1:])
+
     command = pu[0]
+    manual.set_name(command)
+
     return '( ' + ' '.join(') | (' if s == pu[0] else s for s in pu[1:]) + ' )'
 
 
@@ -711,6 +712,15 @@ class MDocFormatter(ManualFormatter):
                 l.append(line.rstrip())
         return '\n'.join(l)
 
+    def replace_empty_lines(self,string,replace):
+        l = []
+        for line in string.split("\n"):
+            if not re.match(r'^\s*$', line) and len(line)>0:
+                l.append(line.rstrip())
+            else:
+                l.append(replace)
+        return '\n'.join(l)
+
     def manpage(self,page,number="1"):
         if number == '':
             number = "1"
@@ -724,6 +734,82 @@ class MDocFormatter(ManualFormatter):
                 self.add_code(" , ")
             self.manpage(page,pages[page])
             i+=1
+
+    def has_child(self,node):
+        if hasattr(node,"children"):
+            for child in node.children:
+                return True
+        return False
+
+    def print_synopsis_tree(self,pattern,parent,l): #the main purpose of this function is to understand the tree and debug code
+        c='----'
+        for child in pattern.children:
+            c=str().rjust((4*l+4),'-')
+            t = type(child)
+            print c+str(type(child))
+            if hasattr(child,"children"):
+                self.print_synopsis_tree(child,pattern,l+1)
+
+
+
+    def iterate_synopsis_tree2(self,pattern,parent,l):
+        s = ''
+        i = 0
+        grandparent_type = type(parent)
+        parent_type = type(pattern)
+        for child in pattern.children:
+            child_type = type(child)
+            if child_type is Command:
+                if child == Command(self.m.name_string,False):
+                    s+= "\n.Nm HERE_GOES_NAME\n"
+                    continue
+            if parent_type is Either and i>0:
+                s += "| "
+
+            if self.has_child(child):
+                if child_type is Either:
+                    s+= ".Pq "
+                s += self.iterate_synopsis_tree2(child,pattern,l+1)
+                if child_type:
+                    if l>1:
+                        if child_type is Either:
+                            s+="\n"
+            else:
+                if child_type is Option:
+                    if (parent_type is Optional and (parent_type is not Either)) or (parent_type is OneOrMore and grandparent_type is Optional):
+                        s+="\n.Op "
+                    elif parent_type is Required:
+                        s+="\n."
+                    if child.name.startswith('--'):
+                        s+=self.long_flag(child.name)+" "
+                    else:
+                        s+=self.short_flag(child.name)+" "
+                elif child_type is OptionsShortcut:
+                    if parent_type is Optional:
+                        s+="\n.Op"
+                    s+= " Ar options"
+                elif child_type is Argument:
+                    if parent_type is not Either and parent_type is not Optional and parent_type is not OneOrMore:
+                        s+="\n."
+                    elif (parent_type == Optional) or (parent_type is OneOrMore and grandparent_type is Optional):
+                        s+="\n.Op "
+                    s+=self.argument(child.name)+" "
+                elif child_type is Command:
+                    if parent_type is not Optional:
+                        s+="\n."
+                    else:
+                        s+="\n.Op "
+                    s+=self.argument(child.name)+" "
+                if parent_type is OneOrMore:
+                    s+="Ar ... "
+            i+=1
+        return s
+
+    def make_synopsis(self,pattern,synopsis):
+        #print "tree:___"
+        #self.print_synopsis_tree(pattern,None,0)
+        synopsis = self.remove_empty_lines(self.iterate_synopsis_tree2(pattern,None,0))
+        return synopsis
 
     def synopsis(self):
         self.add_line("HERE_GOES_SYNOPSIS")
@@ -740,9 +826,9 @@ class MDocFormatter(ManualFormatter):
     def argument(self,a):
         return "Ar "+a
 
-    def text(self,s):
+    def text_raw(self,s):
         if not s:
-            return
+            return ""
         #find arguments,flags,command name
         i=0
         for arg in self.arguments():
@@ -764,8 +850,14 @@ class MDocFormatter(ManualFormatter):
                 l="\&'"+l
             l2.append(l)
         s='\n'.join(l2)
-        s=self.remove_empty_lines(s)
+        s=self.replace_empty_lines(s,".Pp") #FIXME: NOT WELL TESTED
+        return s
 
+    def text(self,s):
+        if not s:
+            return
+        s = self.text_raw(s)
+        s=self.remove_empty_lines(s)
         self.add_line(s.strip())
 
     def add_option(self,options,argcount,short,long,description):
@@ -787,7 +879,6 @@ class MDocFormatter(ManualFormatter):
                 self.add_line(".It "+self.long_flag(long)+" "+self.argument(a))
             else:
                 self.add_line(".It "+self.long_flag(long))
-        #print class_(short, long, argcount, value)
 
         self.m.options[short]=''
         self.m.options[long]=''
@@ -838,7 +929,6 @@ class Manual():
 
         self.section_start("SYNOPSIS")
 
-        self.format.name()
         self.format.synopsis()
 
         self.section_start("DESCRIPTION")
@@ -873,6 +963,7 @@ class Manual():
 
         short_description = self.desc_string.strip()
         short_description = short_description.lower()
+        short_description = short_description[0:short_description.find('.')]
         if short_description.endswith('.'):
             short_description = short_description[:-1]
 
@@ -881,7 +972,7 @@ class Manual():
         self.string = self.string.replace('HERE_GOES_NAME_UPPER',self.name_string.upper())
         self.string = self.string.replace('HERE_GOES_NAME',self.name_string)
         self.string = self.string.replace('HERE_GOES_SHORT_DESCRIPTION',short_description)
-        self.string = self.string.replace('HERE_GOES_DESCRIPTION',self.desc_string)
+        self.string = self.string.replace('HERE_GOES_DESCRIPTION',self.format.text_raw(self.desc_string))
         self.string = self.string.replace('HERE_GOES_SECTION',self.section)
         if self.arch:
             self.string = self.string.replace('HERE_GOES_ARCH'," "+self.arch)
@@ -1044,7 +1135,27 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
     Cli2ManExit.usage = usage_sections[0]
 
     options = parse_defaults(doc)
+
+    section = Cli2ManExit.usage
+    _, _, section = section.partition(':')  # drop "usage:"
+
     pattern = parse_pattern(formal_usage(Cli2ManExit.usage), options)
+
+    s = []
+    for line in section.split("\n"):
+        l = line.lstrip()
+        if not l.startswith(manual.name_string) and l != '':
+            s[-1]+=l
+            continue
+        s.append(l)
+
+    a = ''
+    for l in s:
+        pat = parse_pattern(l,options)
+        a+= manual.format.make_synopsis(pat,l)+"\n" #FIXME: creating to many newlines here
+
+    manual.synopsis_string=a
+
     # [default] syntax for argument is disabled
     #for a in pattern.flat(Argument):
     #    same_name = [d for d in arguments if d.name == a.name]
