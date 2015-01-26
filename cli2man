@@ -959,7 +959,7 @@ class Manual():
                 self.string += self.sections[section.upper()]
                 if section.upper() in self.subsections: #does the section have at least one subsection?
                     for subsection in self.subsections[section.upper()]:
-                        self.string += subsections
+                        self.string += subsection
 
         short_description = self.desc_string.strip()
         short_description = short_description.lower()
