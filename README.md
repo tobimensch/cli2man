@@ -15,22 +15,12 @@ INSTALLING
 Install requirements:
 
 - python
-- docopt module
- - https://github.com/docopt/docopt
- - drop docopt.py into cli2man directory
- - or simply run: pip install docopt==0.6.1
- - docopt is in the Fedora repository,
-   so it's probably in other distributions's
-   repositories, too
+- [docopt](https://github.com/docopt/docopt)
 
 Install Cli2Man:
 
-- [Get Cli2Man](https://github.com/tobimensch/cli2man/archive/master.zip)
-- Extract
-- run:
-
 ```
-    python setup.py install
+    pip install cli2man
 ```
 
 HOW TO USE IT

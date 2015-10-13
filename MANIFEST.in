@@ -1,1 +1,2 @@
 include cli2man.1.gz
+include README.md
