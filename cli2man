@@ -478,7 +478,7 @@ def parse_defaults(doc):
         split = re.split('^  (-\S+?)', '\n' + s,flags=re.MULTILINE)[1:]
         split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
         #for p in split:
-        #    print "['"+p+"']" 
+        #    print "['"+p+"']"
 
         #mdoc
         manual.format.begin_list()
@@ -599,14 +599,14 @@ class MarkdownFormatter(ManualFormatter):
     def begin_section(self,name):
         self.add_line("# "+name)
         self.newline()
-  
+
     def begin_list(self):
         return
         #self.add_line(".Bl -tag -width Ds")
 
     def end_list(self):
-        return        
-        self.add_line(".El")   
+        return
+        self.add_line(".El")
 
     def date(self):
         self.add_line("Creation Date: "+self.month()+" "+self.day()+", "+self.year())
@@ -682,13 +682,13 @@ class MarkdownFormatter(ManualFormatter):
 
 class MDocFormatter(ManualFormatter):
     def begin_section(self,name):
-        self.add_line(".Sh "+name) 
-  
+        self.add_line(".Sh "+name)
+
     def begin_list(self):
         self.add_line(".Bl -tag -width Ds")
 
     def end_list(self):
-        self.add_line(".El")   
+        self.add_line(".El")
 
     def date(self):
         self.add_code(".Dd "+self.month()+" "+self.day()+", "+self.year())
@@ -839,7 +839,7 @@ class MDocFormatter(ManualFormatter):
                 s2=s
                 s=re.sub(opt+"[ |\n]","\n.Fl "+opt[1:].strip()+"\n",s)
                 if s2 == s: #FIXME: this is bad regex... should use a capture group and match for / and , and . and probably more
-                    s=re.sub(opt+"/","\n.Fl "+opt[1:].strip()+"\n/",s)           
+                    s=re.sub(opt+"/","\n.Fl "+opt[1:].strip()+"\n/",s)
         if self.command_name():
             s=re.sub(self.command_name()+"[ ]{0,1}","\n.Cm "+self.command_name()+"\n",s)
 
@@ -959,7 +959,7 @@ class Manual():
                 self.string += self.sections[section.upper()]
                 if section.upper() in self.subsections: #does the section have at least one subsection?
                     for subsection in self.subsections[section.upper()]:
-                        self.string += subsections
+                        self.string += subsection
 
         short_description = self.desc_string.strip()
         short_description = short_description.lower()
@@ -1009,7 +1009,7 @@ class Manual():
             split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
 
             #for p in split:
-            #    print "['"+p+"']" 
+            #    print "['"+p+"']"
 
             #mdoc
             self.format.begin_list()
@@ -1029,7 +1029,7 @@ class Manual():
             split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
 
             #for p in split:
-            #    print "['"+p+"']" 
+            #    print "['"+p+"']"
 
             #mdoc
             self.format.begin_list()
@@ -1056,16 +1056,16 @@ class Manual():
                 [macro,name] = line.split(' ')
                 self.section_start(name)
                 continue
-            #I started this code, then noticed it's most likely never needed            
+            #I started this code, then noticed it's most likely never needed
             #if line.startswith(".Ss "): #Section
             #    #a section begins
             #    [macro,subname] = line.split(' ')
-            #    
+            #
             #    if name: #we previously parsed a section, of which this is logically the subsection
             #        self.sub_section_start(subname,name)
             #    elif self.sub_section_of(
             #        self.
-            #        
+            #
             #    continue
             self.format.text(line)
 
@@ -1119,13 +1119,13 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
     """
     global section_non_option_additional;
     global manual;
-    
+
     manual.begin()
 
     argv = sys.argv[1:] if argv is None else argv
 
     usage_sections = parse_section('usage:', doc)
-    
+
     manual.set_description(section_non_option_additional.strip())
 
     if len(usage_sections) == 0:
@@ -1206,10 +1206,10 @@ Options:
   -m, --open-in-man            open the output in man
   -z, --gzip                   compress file output
   -o FILE, --output FILE       write to file instead of stdout.
-                               when FILE is set to "auto" the    
+                               when FILE is set to "auto" the
                                format is: command.section(.gz)
   -i FILE, --input FILE        read CLI-help input from file
-  --stdin                      read CLI-help input from stdin     
+  --stdin                      read CLI-help input from stdin
   --info-section NAME ...      parse non-option sections
   --option-section NAME ...    parse option sections other than "Options:"
   -I FILE, --include FILE      include material from FILE
@@ -1327,7 +1327,7 @@ if opt['--info-section']:
     for info_section in opt['--info-section'] if not isinstance(opt['--info-section'],basestring) else [opt['--info-section']]:
         manual.append_section_if_not_exists(info_section)
         manual.parse_info_section(out,info_section)
-    
+
 if opt['--option-section']:
     for option_section in opt['--option-section'] if not isinstance(opt['--option-section'],basestring) else [opt['--option-section']]:
         manual.append_section_if_not_exists(option_section)
@@ -1340,7 +1340,7 @@ if opt['--see-also']:
         page = re.sub("[0-9]", "", page)
         pages[page] = num
     manual.format.see_also(pages)
-            
+
 
 manual.merge()
 
@@ -1368,7 +1368,7 @@ if opt['--create-script']:
     args.remove('--create-script')
     args.remove(opt['--create-script'])
     cmd = 'cli2man '+(' '.join(args))
-    
+
     f = open(opt['--create-script'],'w+')
     f.write("#!/bin/sh\n")
     f.write("#This script was autogenerated with the --create-script option of cli2man\n\n")
