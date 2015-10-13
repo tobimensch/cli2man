@@ -1,0 +1,4 @@
+dist/
+MANIFEST
+*pyc
+cli2man.1.gz
