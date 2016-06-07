@@ -768,7 +768,10 @@ class MDocFormatter(ManualFormatter):
 
             if self.has_child(child):
                 if child_type is Either:
-                    s+= ".Pq "
+                    if all(type(c) is Option for c in child.children):
+                        s+= "\n.Op "
+                    else:
+                        s+= "\n.Pq "
                 s += self.iterate_synopsis_tree2(child,pattern,l+1)
                 if child_type:
                     if l>1:
