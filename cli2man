@@ -1280,13 +1280,6 @@ else:
         p = subprocess.Popen([opt['<command>'],"--help"], stdout=subprocess.PIPE)
         out, err = p.communicate()
 
-if opt['--section']:
-    manual.section = opt['--section']
-if opt['--arch']:
-    manual.arch = opt['--arch']
-if opt['--os']:
-    manual.os = opt['--os']
-
 #prepare the input for docopt's parser, it expects strict conventions and i.e. python's ArgumentParser doesn't produce perfect --help pages
 
 def lil_parser(s):
@@ -1312,6 +1305,13 @@ out = out.replace('optional arguments:','Options:')
 empty_argv = []
 
 manual = Manual(opt['-T'])
+
+if opt['--section']:
+    manual.section = opt['--section']
+if opt['--arch']:
+    manual.arch = opt['--arch']
+if opt['--os']:
+    manual.os = opt['--os']
 
 #here we do most of the real work
 manual.set_pattern(cli2man(out,empty_argv))
