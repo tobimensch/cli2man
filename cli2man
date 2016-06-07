@@ -1152,7 +1152,7 @@ def cli2man(doc, argv=None, help=True, version=None, options_first=False):
             continue
         s.append(l)
 
-    manual.synopsis_string = "\n".join(manual.format.make_synopsis(parse_pattern(l,options),l) for l in s)
+    manual.synopsis_string = "\n".join(syn for syn in (manual.format.make_synopsis(parse_pattern(l,options),l) for l in s) if syn)
 
     # [default] syntax for argument is disabled
     #for a in pattern.flat(Argument):
