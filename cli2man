@@ -1056,7 +1056,7 @@ class Manual():
                 continue
             if line.startswith(".Sh "): #Section
                 #a section begins
-                [macro,name] = line.split(' ')
+                [macro,name] = line.split(' ', 1)
                 self.section_start(name)
                 continue
             #I started this code, then noticed it's most likely never needed
