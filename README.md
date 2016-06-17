@@ -70,20 +70,20 @@ All these sections have in common that cli2man parses for something that looks r
     MySection:
       Section text
 
-cli2man has a internal default section order of common section names. To view the defaults run this:
+cli2man has an internal default section order of common section names. To view the defaults run this:
 
     cli2man --print-order
 
-To change the order you use --set-order followed by a comma separated list of section names. Combine it with
+To change the order use --set-order followed by a comma separated list of section names. Combine it with
 --print-order to test the result:
 
 ``` shell
 cli2man --print-order --set-order "NAME,USAGE,OPTIONS,DESCRIPTION,EXAMPLES,COPYRIGHT"
 ```
 
-Everything that's not defined in the order will simply appended to the end of the manpage.
+Every section that isn't defined in the section order list will be appended to the end of the manpage.
 
-Finally here's a real example where cli2man generates its own manpage and the OPTIONS and DESCRIPTION sections are swapped:
+Finally here's an example where cli2man generates its own manpage with swapped OPTIONS and DESCRIPTION sections:
 
 ``` shell
 cli2man cli2man -m --set-order "NAME,SYNOPSIS,OPTIONS,DESCRIPTION"
