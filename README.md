@@ -50,7 +50,7 @@ Cli2Man now includes an experimental markdown formatter:
 
 ### Handling sections
 
-Currently cli2man doesn't try to find more than one options section on it's own (it's searching for "options" and
+Currently cli2man doesn't try to find more than one options section on its own (it's searching for "options" and
 "optional arguments"), so if you have a differently named option section or you have multiple option sections
 you want to do something like this:
 
