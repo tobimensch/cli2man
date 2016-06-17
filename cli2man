@@ -20,7 +20,7 @@ import gzip
 from docopt import docopt
 
 __all__ = ['cli2man']
-__version__ = '0.2.3'
+__version__ = '0.2.4'
 
 
 class Cli2ManLanguageError(Exception):
