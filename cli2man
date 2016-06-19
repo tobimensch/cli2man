@@ -1244,42 +1244,13 @@ Options:
 
 opt = docopt(doc,None,True,__version__)
 
-
-if opt['--set-order']:
-    manual.section_order = ["MDOC INIT"]
-    manual.section_order += opt['--set-order'].split(',') #overwrites default order
-
-if opt['--print-order']:
-    print "Section Order:"
-    print "____________________"
-    for section in manual.section_order:
-        if section == "MDOC INIT":
-            continue
-        print "  "+section
-    print "____________________"
-    print
-    print "  --set-order \""+(','.join(manual.section_order[1:])+"\"")
-    print "____________________"
-    print
-    print "NOTE: You can use this string as basis for modifying the section order."
-    print
-    print "Copy it and keep the quotation marks, so that whitespace won't cause trouble."
-    print
-    print "Sections added with --info-section and --option-section are automatically appended"
-    print "to the end of the manpage, if they aren't otherwise defined in your order settings."
-    print
-    print "Sections defined in an --include mdoc file that aren't defined in the section order,"
-    print "will NOT appear in the manpage AT ALL."
-
-    exit(0)
-
 out = ''
 
 if opt['--input']:
    out = "".join(open(opt['--input']).readlines())
 elif opt['--stdin']:
    out = "".join(sys.stdin.readlines())
-else:
+elif opt['<command>']:
    os.environ['LC_ALL'] = 'en_US' #we don't intend to parse localized help messages
    p = subprocess.Popen([opt['<command>'],"-h"], stdout=subprocess.PIPE)
    out, err = p.communicate()
@@ -1313,10 +1284,40 @@ empty_argv = []
 
 manual = Manual(opt['-T'])
 
+if opt['--set-order']:
+    manual.section_order = ["MDOC INIT"]
+    manual.section_order += opt['--set-order'].split(',') #overwrites default order
+
+if opt['--print-order']:
+    print "Section Order:"
+    print "____________________"
+    for section in manual.section_order:
+        if section == "MDOC INIT":
+            continue
+        print "  "+section
+    print "____________________"
+    print
+    print "  --set-order \""+(','.join(manual.section_order[1:])+"\"")
+    print "____________________"
+    print
+    print "NOTE: You can use this string as basis for modifying the section order."
+    print
+    print "Copy it and keep the quotation marks, so that whitespace won't cause trouble."
+    print
+    print "Sections added with --info-section and --option-section are automatically appended"
+    print "to the end of the manpage, if they aren't otherwise defined in your order settings."
+    print
+    print "Sections defined in an --include mdoc file that aren't defined in the section order,"
+    print "will NOT appear in the manpage AT ALL."
+
+    exit(0)
+
 if opt['--section']:
     manual.section = opt['--section']
+
 if opt['--arch']:
     manual.arch = opt['--arch']
+
 if opt['--os']:
     manual.os = opt['--os']
 
