@@ -494,12 +494,12 @@ def my_print(toprint): #just for debugging
     print "____________________"
 
 def parse_section(name, source):
-    global section_non_option_additional;
+    global section_non_option_additional
     global manual
 
     if not "usage" in name:
         manual.section_start(name.replace(':','').upper())
-    pattern = re.compile('^([^\n]*' + name + '[^\n]*\n?(?:[ \t].*?(?:\n|$))*)',
+    pattern = re.compile('^([^\n]*' + name + '[^\n]*\n?(?:\s\s.*?(?:\n|$))*)',
                          re.IGNORECASE | re.MULTILINE)
 
     res = [s.strip() for s in pattern.findall(source)]
@@ -689,6 +689,9 @@ class MDocFormatter(ManualFormatter):
 
     def end_list(self):
         self.add_line(".El")
+
+    def newline(self): #inserts newline
+        self.add_line(".sp 1")
 
     def date(self):
         self.add_code(".Dd "+self.month()+" "+self.day()+", "+self.year())
@@ -889,9 +892,10 @@ class MDocFormatter(ManualFormatter):
 
     def item(self,head,content):
         self.add_line(".It "+head.strip())
-        self.add_line(".sp 2")
-        self.add_line(content.strip())
-        self.add_line(".sp 1")
+        if content.strip() != "":
+            self.add_line(".sp 2")
+            self.add_line(content.strip())
+            self.add_line(".sp 1")
 
 class Manual():
     def __init__(self,frmt):
@@ -1028,18 +1032,24 @@ class Manual():
 
             _, _, s = s.partition(':')  # get rid of "options:"
 
-            split = re.split('^  (-\S+?)', '\n' + s,flags=re.MULTILINE)[1:]
-            split = [s1 + s2 for s1, s2 in zip(split[::2], split[1::2])]
+            is_list = False
+            for line in s.split('\n'):
+                if line.strip().startswith('-'): #in info mode '-' is more like a bullet point
+                    if not is_list:
+                        self.format.begin_list()
+                        is_list = True
+                    Info.parse(line)
+                else:
+                    if not len(line.strip()) == 0:
+                        manual.format.newline();
+                        manual.format.text(line)
+                        manual.format.newline();
+                    if is_list:
+                        self.format.end_list()
+                        is_list = False
 
-            #for p in split:
-            #    print "['"+p+"']"
-
-            #mdoc
-            self.format.begin_list()
-            #manual_add(s)
-            options = [Info.parse(s) for s in split if s.startswith('-')] #in info mode '-' is more like a bullet point
-            #defaults += options
-            self.format.end_list()
+            if is_list:
+                self.format.end_list()
         return defaults
 
     #def sub_section_of(self,subsection)
@@ -1075,6 +1085,8 @@ class Manual():
     def append_section_if_not_exists(self,section):
         if section.upper() not in self.sections:
             self.sections[section.upper()] = ''
+        if section.upper() not in self.section_order:
+            self.section_order.append(section.upper())
 
     def set_pattern(self,pattern):
         self.pattern = pattern
@@ -1315,11 +1327,8 @@ include = ''
 if opt['--include']:
     include = "".join(open(opt['--include']).readlines())
 
-
-
 if include:
     manual.include_parse(include)
-
 
 if opt['--info-section']:
     for info_section in opt['--info-section'] if not isinstance(opt['--info-section'],basestring) else [opt['--info-section']]:
@@ -1338,7 +1347,6 @@ if opt['--see-also']:
         page = re.sub("[0-9]", "", page)
         pages[page] = num
     manual.format.see_also(pages)
-
 
 manual.merge()
 
