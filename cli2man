@@ -1229,6 +1229,7 @@ Options:
   -s NUM, --section NUM        section number for manual page (default: 1)
   --arch ARCH                  set architecture for manual page
   --os OS                      operating system name
+  --date DATE                  date in ISO 8601 format (current date by default)
   --see-also PAGES             comma separated list of manpages
                                i.e. --see-also mandoc,mdoc7
                                without number at the end, section 1 is assumed
@@ -1322,6 +1323,9 @@ if opt['--arch']:
 if opt['--os']:
     manual.os = opt['--os']
 
+if opt['--date']:
+    manual.now = datetime.datetime.strptime(opt['--date'], "%Y-%m-%d")
+
 #here we do most of the real work
 manual.set_pattern(cli2man(out,empty_argv))
 
@@ -1394,4 +1398,3 @@ if opt['--open-in-man']:
         os.unlink(f.name)
     else:
         subprocess.call('man ./'+opt['--output'],shell=True)
-
