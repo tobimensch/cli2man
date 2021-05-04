@@ -90,7 +90,7 @@ def transform(pattern):
     while groups:
         children = groups.pop(0)
         parents = [Required, Optional, OptionsShortcut, Either, OneOrMore]
-        if any(t in map(type, children) for t in parents):
+        if any(t in list(map(type, children)) for t in parents):
             child = [c for c in children if type(c) in parents][0]
             children.remove(child)
             if type(child) is Either:
@@ -534,7 +534,7 @@ def formal_usage(section):
 
 def extras(help, version, options, doc):
     if help and any((o.name in ('-h', '--help')) and o.value for o in options):
-        print(doc.strip("\n"))
+        print((doc.strip("\n")))
         sys.exit()
     if version and any(o.name == '--version' and o.value for o in options):
         print(version)
@@ -749,7 +749,7 @@ class MDocFormatter(ManualFormatter):
         for child in pattern.children:
             c=str().rjust((4*l+4),'-')
             t = type(child)
-            print(c+str(type(child)))
+            print((c+str(type(child))))
             if hasattr(child,"children"):
                 self.print_synopsis_tree(child,pattern,l+1)
 
@@ -962,7 +962,7 @@ class Manual():
         self.push_to_section()
 
         for section in std_sections:
-            if section.lower() in [s.lower() for s in self.sections.keys()]:
+            if section.lower() in [s.lower() for s in list(self.sections.keys())]:
                 self.string += self.sections[section.upper()]
                 if section.upper() in self.subsections: #does the section have at least one subsection?
                     for subsection in self.subsections[section.upper()]:
@@ -1296,10 +1296,10 @@ if opt['--print-order']:
     for section in manual.section_order:
         if section == "MDOC INIT":
             continue
-        print("  "+section)
+        print(("  "+section))
     print("____________________")
     print()
-    print("  --set-order \""+(','.join(manual.section_order[1:])+"\""))
+    print(("  --set-order \""+(','.join(manual.section_order[1:])+"\"")))
     print("____________________")
     print()
     print("NOTE: You can use this string as basis for modifying the section order.")
@@ -1337,12 +1337,12 @@ if include:
     manual.include_parse(include)
 
 if opt['--info-section']:
-    for info_section in opt['--info-section'] if not isinstance(opt['--info-section'],basestring) else [opt['--info-section']]:
+    for info_section in opt['--info-section'] if not isinstance(opt['--info-section'],str) else [opt['--info-section']]:
         manual.append_section_if_not_exists(info_section)
         manual.parse_info_section(out,info_section)
 
 if opt['--option-section']:
-    for option_section in opt['--option-section'] if not isinstance(opt['--option-section'],basestring) else [opt['--option-section']]:
+    for option_section in opt['--option-section'] if not isinstance(opt['--option-section'],str) else [opt['--option-section']]:
         manual.append_section_if_not_exists(option_section)
         manual.parse_option_section(out,option_section)
 
@@ -1373,7 +1373,7 @@ if opt['--output']:
     f.write(manual.string)
     f.close()
 else:
-    print(manual.string)
+    print((manual.string))
 
 if opt['--create-script']:
     args = sys.argv[1:]
